@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  api:
+    build: ./api
+    container_name: doramar-api
+    ports:
+      - "${SERVER_PORT}:${SERVER_PORT}"  
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: "${DATABASE_URL}" 
+      PORT: "${SERVER_PORT}"
+      NODE_ENV: production
+  front:
+    build: ./front    
+    container_name: doramar-web
+    ports:
+      - "${FRONT_PORT}:${FRONT_PORT}"
+    depends_on:
+      - api
+    environment:
+      - NEXT_PUBLIC_API_URL=http://seu-ip-da-aws:3000
