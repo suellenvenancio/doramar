@@ -1,0 +1,21 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "noEmitHelpers": false,
+    "allowSyntheticDefaultImports": true,
+    "allowJs": true,
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": false,
+     "importHelpers": true, 
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "baseUrl": ".",
+    "strictPropertyInitialization": false,
+    "preserveSymlinks": false
+  },
+  "exclude": ["node_modules", "tmp", "out", "dist", "apps/checkout-e2e"],
+  "include": ["**/src/**/*.ts"],
+  "extends": "./node_modules/gts/tsconfig-google.json"
+}

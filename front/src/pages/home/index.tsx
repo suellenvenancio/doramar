@@ -1,0 +1,261 @@
+import { useTvShow } from "@/hooks/use-tv-shows"
+
+import { useList } from "@/hooks/use-list"
+import { DramaItem } from "@/components/dramaItem"
+import { useCallback, useEffect, useMemo, useState } from "react"
+import { CreateListModal } from "@/components/modal/createListModal"
+import { useUser } from "@/hooks/use-user"
+import { useRating } from "@/hooks/use-rating"
+import {
+  ButtonTypeEnum,
+  type Actor,
+  type List,
+  type TvShow,
+  type WatchedTvShow,
+} from "@/types"
+import { CastModal } from "@/components/modal/castModal"
+import { useActor } from "@/hooks/use-actor"
+import { useGenres } from "@//hooks/use-genres"
+import { Layout } from "@/components/layout"
+import { mergeCn } from "@/utils/cn"
+
+export function HomePage() {
+  const {
+    tvShows,
+    watchedStatus,
+    markTvShowAsWatched,
+    watchedTvShows,
+    tvShowsByPage,
+    fetchTvShowsByPage,
+  } = useTvShow()
+  const { lists, addTvShowToList, createList } = useList()
+  const { user, markTvShowAsFavorite } = useUser()
+  const { ratings, createRating } = useRating()
+  const { markActorAsFavorite } = useActor()
+  const { genres } = useGenres()
+ 
+  const [showCreateListModal, setShowCreateListModal] = useState(false)
+  const [showCastModal, setShowCastModal] = useState(false)
+  const [selectedTvShow, setSelectedTvShow] = useState<TvShow>()
+  const [search, setSearch] = useState("")
+  const [activePopup, setActivePopup] = useState<ButtonTypeEnum | null>(null)
+  const [selectedGenres, setSelectedGenres] = useState<string[]>([])
+  const [tvShowsToRender, setTvShowstoRender] = useState<TvShow[]>([])
+  const [currentPage, setCurrentPage] = useState<number>()
+  const totalPages = tvShowsByPage?.totalPages
+
+  useEffect(() => {
+    setTvShowstoRender(tvShowsByPage?.results ?? [])
+    setCurrentPage(tvShowsByPage?.page ?? 1)
+  }, [tvShowsByPage])
+
+  const favoriteTvShows = user?.favoriteTvShow
+
+  const getStatusColor = useCallback(
+    (watchedTvShows: WatchedTvShow[], tvShowId: string) => {
+      const status = watchedTvShows.find(
+        (tv) => tv.id === tvShowId
+      )?.watchStatus
+      switch (status) {
+        case "Finalizado":
+          return "green"
+        case "Assistindo":
+          return "yellow"
+        case "Abandonei":
+          return "red"
+        default:
+          return "gray"
+      }
+    },
+    [watchedTvShows]
+  )
+
+  const handleWatchStatusChange = async ({
+    tvShow,
+    watchedStatusId,
+  }: {
+    tvShow: TvShow
+    watchedStatusId: string
+  }) => {
+    await markTvShowAsWatched(tvShow, watchedStatusId)
+  }
+
+  const handleAddTvShowToList = async ({
+    list,
+    tvShow,
+  }: {
+    list: List
+    tvShow: TvShow
+  }) => {
+    await addTvShowToList(list, tvShow)
+  }
+
+  const onCreateList = async (name: string) => {
+    await createList(name)
+  }
+
+  const handleCastModalButton = (tvShow: TvShow) => {
+    setSelectedTvShow(tvShow)
+    setShowCastModal(!showCastModal)
+  }
+
+  const handleMakeActorFavorite = async (actor: Actor) => {
+    await markActorAsFavorite(actor.id)
+  }
+
+  const onSelectGenre = useCallback(
+    (genreId: string) => {
+      setSelectedGenres((prev) =>
+        prev.includes(genreId)
+          ? prev.filter((id) => id !== genreId)
+          : [...prev, genreId]
+      )
+    },
+    [selectedGenres]
+  )
+
+  const onActivePopUp = () => {
+    setActivePopup((prev) =>
+      prev === ButtonTypeEnum.FILTER ? null : ButtonTypeEnum.FILTER
+    )
+  }
+
+  const onChange = (value: string) => {
+    setSearch(value)
+
+    let showsToFilter = tvShows
+    if (search === "") {
+      setTvShowstoRender(tvShowsByPage?.results ?? [])
+    } 
+    
+    if (search.trim()) {
+      const searchQuery = search.trim().toLowerCase()
+      showsToFilter = showsToFilter.filter((tvShow) =>
+        tvShow.title.toLowerCase().includes(searchQuery)
+      )
+      setTvShowstoRender(showsToFilter)
+    }
+
+    if (selectedGenres.length > 0) {
+      showsToFilter = showsToFilter.filter((tvShow) =>
+        tvShow.genres?.some((tvGenre) => selectedGenres.includes(tvGenre.id))
+      )
+      setTvShowstoRender(tvShowsByPage?.results ?? [])
+    }
+  }
+
+  const onPageChange = useCallback(
+    async (newPage: number) => {
+      setCurrentPage(newPage)
+
+      await fetchTvShowsByPage(newPage, 20)
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      })
+    },
+    [setCurrentPage, currentPage]
+  )
+
+  const baseTvShows = useMemo(() => {
+    return tvShowsByPage?.results ?? []
+  }, [tvShowsByPage])
+
+  return (
+    <Layout
+      page="Home"
+      headerProps={{
+        search: search,
+        setSearch: onChange,
+        activePopup: activePopup,
+        genres: genres,
+        selectedGenres: selectedGenres,
+        onSelectGenre: onSelectGenre,
+        setActivePopUp: onActivePopUp,
+        page: "Home",
+      }}
+    >
+      <div className="w-full mt-6 flex flex-col md:flex-row md:flex-wrap md:items-start md:justify-evenly p-6">
+        {tvShowsToRender.map((show) => {
+          const watchedStatusColor = getStatusColor(watchedTvShows, show.id)
+
+          return (
+            <DramaItem
+              key={show.id}
+              show={show}
+              watchedStatus={watchedStatus}
+              watchedStatusColor={watchedStatusColor}
+              lists={lists}
+              handleWatchStatusChange={handleWatchStatusChange}
+              handleAddTvShowToList={handleAddTvShowToList}
+              setShowCreateListModal={setShowCreateListModal}
+              initialRating={
+                ratings.find((r) => r.tvShow.id === show.id)?.scaleId ?? 0
+              }
+              isFavorite={favoriteTvShows?.id === show.id}
+              onMakeTvShowFavoriteFavorite={markTvShowAsFavorite}
+              onRate={createRating}
+              onClickShowCastModalButton={() => handleCastModalButton(show)}
+            />
+          )
+        })}
+      </div>
+      <Pagination
+        currentPage={currentPage ?? 1}
+        totalPages={totalPages ?? 0}
+        onPageChange={onPageChange}
+      />
+      <CastModal
+        isOpen={showCastModal}
+        onClose={() => setShowCastModal(false)}
+        actors={selectedTvShow?.actors ?? []}
+        onClick={handleMakeActorFavorite}
+        favoriteActors={user?.favoriteActors ?? []}
+      />
+
+      <CreateListModal
+        isOpen={showCreateListModal}
+        onClose={() => setShowCreateListModal(false)}
+        onCreate={onCreateList}
+      />
+    </Layout>
+  )
+}
+
+interface PaginationProps {
+  currentPage: number
+  totalPages: number
+  onPageChange: (newPage: number) => void
+}
+
+function Pagination({
+  currentPage,
+  totalPages,
+  onPageChange,
+}: PaginationProps) {
+  return (
+    <div className="flex flex-row gap-2.5 mt-5 items-center justify-center text-pink-600 mb-14 md:mb-0">
+      <button
+        className={mergeCn("font-bold", {
+          hidden: currentPage === 1,
+        })}
+        disabled={currentPage === 1}
+        onClick={() => onPageChange(currentPage - 1)}
+      >
+        Anterior
+      </button>
+
+      <span>
+        Página {currentPage} de {totalPages}
+      </span>
+
+      <button
+        className="font-bold"
+        disabled={currentPage === totalPages}
+        onClick={() => onPageChange(currentPage + 1)}
+      >
+        Próximo
+      </button>
+    </div>
+  )
+}

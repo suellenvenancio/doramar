@@ -1,0 +1,48 @@
+import { useCallback } from "react"
+import { useUser } from "./use-user"
+import { actorService } from "@/services/actor.service "
+import { toast } from "@/components/toast"
+
+export function useActor() {
+  const { user, setUser } = useUser()
+
+  const userId = user?.id
+
+  const markActorAsFavorite = useCallback(
+    async (actorId: string) => {
+      if (!userId) return
+
+      try {
+        return actorService.makeActorFavorite(userId, actorId).then((actor) => {
+          if (!actor) {
+            const updatedFavorites = user?.favoriteActors.filter(
+              (favActor) => favActor.id !== actorId
+            )
+
+            setUser({
+              ...user,
+              favoriteActors: updatedFavorites || [],
+            })
+
+            toast("Ator removido dos favoritos!")
+            return
+          }
+
+          setUser({
+            ...user,
+            favoriteActors: [...user.favoriteActors, actor],
+          })
+
+          toast(`${actor.name} adicionado dos favoritos!`)
+        })
+      } catch (e) {
+        console.error(`Erro salvar ator como favorito: ${e}`)
+      }
+    },
+    [userId]
+  )
+
+  return {
+    markActorAsFavorite,
+  }
+}
