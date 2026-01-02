@@ -1,0 +1,293 @@
+generator client {
+  provider = "prisma-client-js"
+  // output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+ 
+ }
+
+model TvShows {
+  id           String   @id @default(uuid())
+  title        String
+  synopsis     String
+  poster       String
+  premiereDate DateTime @map("premiereDate")
+  originalName String   @map("originalName")
+  createdAt    DateTime @default(now()) @map("createdAt")
+
+  tvshowGenres        TvShowGenres[]
+  lists               ListTvShow[]
+  ratings             Ratings[]
+  actors              ActorsOnTvShows[]
+  userWatchedTvShows  UserWatchedTvShows[] 
+  userFavoriteTvShows UserFavoriteTvShow[] 
+}
+
+model Genres {
+  id           String         @id @default(uuid())
+  name         String
+  tvshowGenres TvShowGenres[]
+}
+
+model TvShowGenres {
+  id       String  @id @default(uuid())
+  tvShow   TvShows @relation(fields: [tvShowId], references: [id], onDelete: Cascade)
+  tvShowId String  @map("tvShowId")
+  genre    Genres  @relation(fields: [genreId], references: [id], onDelete: Cascade)
+  genreId  String  @map("genreId")
+}
+
+model Users {
+  id             String   @id @default(uuid())
+  name           String
+  email          String   @unique
+  username       String   @unique
+  profilePicture String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+
+  list             Lists[]
+  ratings          Ratings[]
+  watched          UserWatchedTvShows[]
+  favoriteActors   UserFavoriteActors[] 
+  favoriteTvShows  UserFavoriteTvShow[] 
+  communitiesOwned Communities[]       @relation("CommunityOwner")
+  memberships      CommunityMember[]
+  posts            Posts[]
+  comments         Comment[]
+  reactions        Reactions[]
+
+  @@map("users")
+}
+
+model ListTvShow {
+  id       String   @id @default(uuid())
+  list     Lists    @relation(fields: [listId], references: [id])
+  listId   String
+  tvShow   TvShows  @relation(fields: [tvShowId], references: [id])
+  tvShowId String
+  addedAt  DateTime @default(now())
+  order    Int      @default(0)
+}
+
+model Lists {
+  id        String       @id @default(uuid())
+  name      String
+  user      Users        @relation(fields: [userId], references: [id])
+  userId    String
+  tvShows   ListTvShow[]
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+}
+
+model RatingScale {
+  id      Int    @id @default(autoincrement())
+  label   String
+  ratings Ratings[]
+}
+
+model Ratings {
+  id       String      @id @default(uuid())
+  userId   String
+  tvShowId String
+  scaleId  Int
+  comment  String?
+  
+  user     Users       @relation(fields: [userId], references: [id])
+  tvShow   TvShows     @relation(fields: [tvShowId], references: [id])
+  scale    RatingScale @relation(fields: [scaleId], references: [id])
+}
+
+model ActorsOnTvShows {
+  id       String  @id @default(uuid())
+  tvShow   TvShows @relation(fields: [tvShowId], references: [id], onDelete: Cascade)
+  tvShowId String
+  actor    Actors  @relation(fields: [actorId], references: [id], onDelete: Cascade)
+  actorId  String
+
+}
+
+model Actors {
+  id                 String               @id @default(uuid())
+  name               String
+  image              String?
+  tvShows            ActorsOnTvShows[]
+  userFavoriteActors UserFavoriteActors[]
+}
+
+model UserFavoriteActors {
+  id      String @id @default(uuid())
+  user    Users  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId  String
+  actor   Actors @relation(fields: [actorId], references: [id], onDelete: Cascade)
+  actorId String
+
+  @@unique([userId, actorId])
+}
+
+model UserFavoriteTvShow {
+  id       String  @id @default(uuid()) 
+   
+  user     Users   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   String  
+  
+  tvShow   TvShows @relation(fields: [tvShowId], references: [id], onDelete: Cascade)
+  tvShowId String
+
+   @@unique([userId, tvShowId]) 
+}
+
+model WatchedStatus {
+  id                 Int                  @id @default(autoincrement())
+  label              String               @unique
+  userWatchedTvShows UserWatchedTvShows[]
+}
+
+model UserWatchedTvShows {
+  id              String        @id @default(uuid())
+  user            Users         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          String
+  tvShow          TvShows       @relation(fields: [tvShowId], references: [id], onDelete: Cascade)
+  tvShowId        String
+  watchedStatusId Int
+  watchedStatus   WatchedStatus @relation(fields: [watchedStatusId], references: [id])
+
+  @@unique([userId, tvShowId])
+}
+ 
+enum CommunityVisibility {
+  PUBLIC
+  PRIVATE
+  SECRET
+}
+
+enum CommunityRole {
+  ADMIN
+  MODERATOR
+  MEMBER
+}
+
+enum MemberStatus {
+  PENDING
+  APPROVED
+  BANNED
+}
+
+enum PostType {
+  TEXT
+  IMAGE
+  LINK
+  POLL
+}
+
+enum ReactionTargetType {
+  POST
+  COMMENT
+}
+
+enum ReactionType {
+  LIKE
+  LOVE
+  LAUGH
+  ANGRY
+} 
+ 
+model Communities {
+  id       String  @id @default(uuid()) 
+  name        String
+  description String?
+  visibility  CommunityVisibility @default(PUBLIC)
+
+  ownerId String
+  owner   Users   @relation("CommunityOwner", fields: [ownerId], references: [id])
+
+  avatarUrl String?
+  coverUrl  String?
+  rules     String?
+
+  members CommunityMember[]
+  posts   Posts[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CommunityMember {
+  id       String  @id @default(uuid()) 
+  communityId String
+  userId      String
+  role        CommunityRole  @default(MEMBER)
+  status      MemberStatus   @default(PENDING)
+  joinedAt    DateTime?
+
+  community Communities @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  user      Users      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([communityId, userId])
+  @@index([userId])
+}
+
+model Posts {
+  id       String  @id @default(uuid()) 
+  communityId String
+  userId      String
+  title       String?
+  content     String
+  type        PostType @default(TEXT)
+  isPinned    Boolean  @default(false)
+  isLocked    Boolean  @default(false)
+
+  community Communities @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  author    Users      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  comments  Comment[]
+  reactions Reactions[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([communityId])
+  @@index([userId])
+}
+
+model Comment {
+  id       String  @id @default(uuid()) 
+  postId   String
+  userId   String
+  parentId String?
+  content  String
+
+  post   Posts    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author Users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent Comment? @relation("CommentHierarchy", fields: [parentId], references: [id])
+  replies Comment[] @relation("CommentHierarchy")
+
+  reactions Reactions[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([postId])
+}
+
+model Reactions {
+  id       String  @id @default(uuid()) 
+  userId     String
+  targetType ReactionTargetType
+  type       ReactionType
+
+  postId    String?
+  commentId String?
+
+  user    Users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post    Posts?   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  comment Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([postId])
+  @@index([commentId])
+}
