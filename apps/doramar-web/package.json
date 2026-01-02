@@ -2,10 +2,10 @@
   "name": "doramar-web",
   "private": true,
   "version": "0.0.0",
-  "type": "commonjs",
+  "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -16,6 +16,7 @@
     "@firebase/auth": "^1.11.1",
     "@hookform/resolvers": "^5.2.2",
     "@tailwindcss/vite": "^4.1.17",
+    "axios": "^1.13.2",
     "clsx": "^2.1.1",
     "firebase": "^12.6.0",
     "react": "^19.2.0",

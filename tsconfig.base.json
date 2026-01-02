@@ -7,13 +7,16 @@
     "allowJs": true,
     "rootDir": ".",
     "sourceMap": true,
-    "declaration": false,
-     "importHelpers": true, 
+    "importHelpers": true,
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
-    "baseUrl": ".",
     "strictPropertyInitialization": false,
-    "preserveSymlinks": false
+    "preserveSymlinks": false,
+    "noImplicitReturns": false,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
   "exclude": ["node_modules", "tmp", "out", "dist", "apps/checkout-e2e"],
   "include": ["**/src/**/*.ts"],

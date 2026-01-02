@@ -1,19 +1,28 @@
 {
   "name": "doramar",
   "version": "1.0.0",
+  "packageManager": "npm@10.8.2",
   "description": "",
   "main": "eslint.config.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "devDependencies": {
     "@types/node": "^25.0.3",
     "@types/pg": "^8.16.0",
+    "gts": "^7.0.0",
     "tsx": "^4.21.0",
+    "turbo": "^2.7.2",
     "typescript": "^5.9.3"
-  }
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
 }

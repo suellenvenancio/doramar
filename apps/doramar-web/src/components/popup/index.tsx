@@ -28,42 +28,44 @@ export function PopUpMenu({
     <div
       className={mergeCn(
         `absolute bottom-full -left-10 md:left-1/2 transform md:-translate-x-1/2 mb-2 w-32 bg-gray-50 text-gray-700 text-xs border border-t border-gray-100 z-50 py-2`,
-        className
+        className,
       )}
     >
-      <p className=' font-semibold text-gray-400 mb-1 ml-2 mr-6'>{title}</p>
+      <p className="font-semibold text-gray-400 pl-2 bg-gray-50 w-full">
+        {title}
+      </p>
       {items.map((item) => (
-        <div className='flex flex-row bg-gray-50 pl-2' key={item.id}>
+        <div className="flex flex-row bg-gray-50 pl-2" key={item.id}>
           {hasCheckBoxes && (
             <input
               checked={selectedGenres?.some((genre) => genre === item.id)}
-              type='checkbox'
-              className='accent-pink-500 '
+              type="checkbox"
+              className="accent-pink-500 "
               onChange={() => onClick(item.id)}
             />
           )}
           <p
             key={item.id}
             className={mergeCn(
-              'block w-full text-left px-3 py-2 bg-gray-50 hover:text-green-600 cursor-pointer',
+              "block w-full text-left px-3 py-2 bg-gray-50 hover:text-green-600 cursor-pointer",
               {
-                'md:text-lg': type === '',
-              }
+                "md:text-lg": type === "",
+              },
             )}
             onClick={() => {
               switch (type) {
-                case 'Status':
-                  onClick({ tvShow, watchedStatusId: item.id });
-                  break;
+                case "Status":
+                  onClick({ tvShow, watchedStatusId: item.id })
+                  break
 
-                case 'Listas':
-                  onClick({ tvShow, list: item });
-                  break;
-                case 'Gêneros':
-                  onClick(item.id);
-                  break;
-                case '':
-                  onClick(item.id);
+                case "Listas":
+                  onClick({ tvShow, list: item })
+                  break
+                case "Gêneros":
+                  onClick(item.id)
+                  break
+                case "":
+                  onClick(item.id)
               }
             }}
           >
@@ -72,5 +74,5 @@ export function PopUpMenu({
         </div>
       ))}
     </div>
-  );
+  )
 }

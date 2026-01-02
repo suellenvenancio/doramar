@@ -33,19 +33,19 @@ export function HomePage() {
   const { ratings, createRating } = useRating()
   const { markActorAsFavorite } = useActor()
   const { genres } = useGenres()
- 
+
   const [showCreateListModal, setShowCreateListModal] = useState(false)
   const [showCastModal, setShowCastModal] = useState(false)
   const [selectedTvShow, setSelectedTvShow] = useState<TvShow>()
   const [search, setSearch] = useState("")
   const [activePopup, setActivePopup] = useState<ButtonTypeEnum | null>(null)
   const [selectedGenres, setSelectedGenres] = useState<string[]>([])
-  const [tvShowsToRender, setTvShowstoRender] = useState<TvShow[]>([])
+  const [tvShowsToRender, setTvShowsToRender] = useState<TvShow[]>([])
   const [currentPage, setCurrentPage] = useState<number>()
   const totalPages = tvShowsByPage?.totalPages
 
   useEffect(() => {
-    setTvShowstoRender(tvShowsByPage?.results ?? [])
+    setTvShowsToRender(tvShowsByPage?.results ?? [])
     setCurrentPage(tvShowsByPage?.page ?? 1)
   }, [tvShowsByPage])
 
@@ -54,7 +54,7 @@ export function HomePage() {
   const getStatusColor = useCallback(
     (watchedTvShows: WatchedTvShow[], tvShowId: string) => {
       const status = watchedTvShows.find(
-        (tv) => tv.id === tvShowId
+        (tv) => tv.id === tvShowId,
       )?.watchStatus
       switch (status) {
         case "Finalizado":
@@ -67,7 +67,7 @@ export function HomePage() {
           return "gray"
       }
     },
-    [watchedTvShows]
+    [watchedTvShows],
   )
 
   const handleWatchStatusChange = async ({
@@ -105,45 +105,56 @@ export function HomePage() {
 
   const onSelectGenre = useCallback(
     (genreId: string) => {
-      setSelectedGenres((prev) =>
-        prev.includes(genreId)
-          ? prev.filter((id) => id !== genreId)
-          : [...prev, genreId]
-      )
+      const nextGenres = selectedGenres.includes(genreId)
+        ? selectedGenres.filter((id) => id !== genreId)
+        : [...selectedGenres, genreId]
+
+      setSelectedGenres(nextGenres)
+
+      if (nextGenres.length > 0) {
+        const showsToFilter = tvShows.filter((tvShow) =>
+          tvShow.genres?.some((tvGenre) => nextGenres.includes(tvGenre.id)),
+        )
+        setTvShowsToRender(showsToFilter)
+      } else {
+        setTvShowsToRender(tvShowsByPage?.results ?? [])
+      }
     },
-    [selectedGenres]
+    [selectedGenres, tvShows, setSelectedGenres, setTvShowsToRender], //
   )
 
   const onActivePopUp = () => {
     setActivePopup((prev) =>
-      prev === ButtonTypeEnum.FILTER ? null : ButtonTypeEnum.FILTER
+      prev === ButtonTypeEnum.FILTER ? null : ButtonTypeEnum.FILTER,
     )
   }
 
-  const onChange = (value: string) => {
-    setSearch(value)
+  const onChange = useCallback(
+    (value: string) => {
+      setSearch(value)
 
-    let showsToFilter = tvShows
-    if (search === "") {
-      setTvShowstoRender(tvShowsByPage?.results ?? [])
-    } 
-    
-    if (search.trim()) {
-      const searchQuery = search.trim().toLowerCase()
-      showsToFilter = showsToFilter.filter((tvShow) =>
-        tvShow.title.toLowerCase().includes(searchQuery)
-      )
-      setTvShowstoRender(showsToFilter)
-    }
+      let filteredResults = [...tvShows]
 
-    if (selectedGenres.length > 0) {
-      showsToFilter = showsToFilter.filter((tvShow) =>
-        tvShow.genres?.some((tvGenre) => selectedGenres.includes(tvGenre.id))
-      )
-      setTvShowstoRender(tvShowsByPage?.results ?? [])
-    }
-  }
+      const searchQuery = value.trim().toLowerCase()
+      if (searchQuery) {
+        filteredResults = filteredResults.filter((show) =>
+          show.title.toLowerCase().includes(searchQuery),
+        )
+      } else { 
+        filteredResults = tvShowsByPage?.results ?? []
+      }
 
+      if (selectedGenres.length > 0) {
+        filteredResults = filteredResults.filter((show) =>
+          show.genres?.some((genre) => selectedGenres.includes(genre.id)),
+        )
+      }
+
+      setTvShowsToRender(filteredResults)
+    },
+    [tvShows, tvShowsByPage, selectedGenres],
+  )  
+  
   const onPageChange = useCallback(
     async (newPage: number) => {
       setCurrentPage(newPage)
@@ -154,12 +165,8 @@ export function HomePage() {
         behavior: "smooth",
       })
     },
-    [setCurrentPage, currentPage]
+    [setCurrentPage, currentPage],
   )
-
-  const baseTvShows = useMemo(() => {
-    return tvShowsByPage?.results ?? []
-  }, [tvShowsByPage])
 
   return (
     <Layout

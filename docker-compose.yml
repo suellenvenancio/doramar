@@ -1,23 +1,23 @@
-version: '3.8'
-
 services:
   api:
-    build: ./api
+    build:
+      context: .                           
+      dockerfile: apps/doramar-api/Dockerfile     
     container_name: doramar-api
     ports:
-      - "${SERVER_PORT}:${SERVER_PORT}"  
+      - "${API_PORT}:${API_PORT}"  
     env_file:
-      - .env
-    environment:
-      DATABASE_URL: "${DATABASE_URL}" 
-      PORT: "${SERVER_PORT}"
-      NODE_ENV: production
+      - .env  
   front:
-    build: ./front    
+    build:
+      context: .                     
+      dockerfile: apps/doramar-web/Dockerfile    
     container_name: doramar-web
     ports:
       - "${FRONT_PORT}:${FRONT_PORT}"
     depends_on:
       - api
+    env_file:                           
+      - .env
     environment:
-      - NEXT_PUBLIC_API_URL=http://seu-ip-da-aws:3000
+      - NEXT_PUBLIC_API_URL=${API_URL}     

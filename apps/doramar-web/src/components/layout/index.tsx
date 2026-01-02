@@ -31,10 +31,10 @@ export function Layout({
     <div
       className={mergeCn(
         `w-full h-full flex flex-col justify-between items-center relative`,
-        className
+        className,
       )}
     >
-      <Header {...{ page, ...headerProps }} />
+      <Header {...{ page, ...headerProps && headerProps }} />
       <div className="flex md:flex-row w-full md:items-start items-center">
         <SideBar />
         <main className="mb-12 w-full">{children}</main>

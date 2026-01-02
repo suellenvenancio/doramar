@@ -20,7 +20,7 @@ export class AxiosWrapper {
 
     this.instance.interceptors.request.use(
       (config: InternalAxiosRequestConfig) => {
-        const token = localStorage.getItem("@App:token")
+        const token = localStorage.getItem("appToken")
         if (token && config.headers) {
           config.headers.Authorization = `Bearer ${token}`
         }
@@ -31,7 +31,7 @@ export class AxiosWrapper {
 
         return config
       },
-      (error) => Promise.reject(error)
+      (error) => Promise.reject(error),
     )
   }
 
@@ -44,12 +44,12 @@ export class AxiosWrapper {
   public async post<T>(
     url: string,
     body?: any,
-    config?: AxiosRequestConfig
+    config?: AxiosRequestConfig,
   ): Promise<T> {
     const response = await this.instance.post<ResponseType<T>>(
       url,
       body,
-      config
+      config,
     )
 
     return response.data.data
@@ -58,7 +58,7 @@ export class AxiosWrapper {
   public async put<T>(
     url: string,
     data?: any,
-    config?: AxiosRequestConfig
+    config?: AxiosRequestConfig,
   ): Promise<T> {
     const response = await this.instance.put<ResponseType<T>>(url, data, config)
     return response.data.data
@@ -67,12 +67,12 @@ export class AxiosWrapper {
   public async patch<T>(
     url: string,
     data?: any,
-    config?: AxiosRequestConfig
+    config?: AxiosRequestConfig,
   ): Promise<T> {
     const response = await this.instance.patch<ResponseType<T>>(
       url,
       data,
-      config
+      config,
     )
     return response.data.data
   }

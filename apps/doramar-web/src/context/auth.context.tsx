@@ -3,8 +3,8 @@ import type { User } from "@/types"
 import { userService } from "@/services/user.service"
 import { AuthService } from "@/services/auth.service"
 import { auth } from "@/firebase.config"
- 
-interface IAuthContextData {
+
+export interface IAuthContextData {
   login: (email: string, password: string) => Promise<User | null>
   user: User | null
   setUser: (user: User | null) => void
@@ -27,8 +27,9 @@ export function AuthProvider({ children }: IProviderData) {
       await authService.signIn(
           email,
           password
-      ).then(async() => {
+      ).then(async(userCredential) => {
         const userData = await userService.findUserByEmail(email)
+        localStorage.setItem("appToken", await userCredential.user.getIdToken())
         setUser(userData)
       })
      
@@ -36,6 +37,7 @@ export function AuthProvider({ children }: IProviderData) {
     } catch (error) {
       console.error("Login error:", error)
       setUser(null)
+      localStorage.removeItem("appToken")
       throw new Error("Error on get the user")
     }
   }, [])
