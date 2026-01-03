@@ -26,7 +26,7 @@ COPY tsconfig.base.json* ./
 
 RUN npx prisma generate --schema=apps/doramar-api/prisma/schema.prisma
 RUN npx turbo run build --filter=doramar-api
-RUN ls -la apps/doramar-api/dist/routes/
+RUN npm prune --production
 
 FROM node:20-alpine AS runner
 RUN apk add --no-cache openssl libc6-compat

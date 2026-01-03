@@ -1,4 +1,3 @@
-# 1. Etapa de limpeza
 FROM node:20-alpine AS pruner
 RUN apk add --no-cache libc6-compat
 RUN npm install -g turbo
@@ -6,26 +5,36 @@ WORKDIR /app
 COPY . .
 RUN turbo prune --scope=doramar-web --docker
 
-# 2. Etapa de Build
 FROM node:20-alpine AS builder
 RUN apk add --no-cache libc6-compat
 
-WORKDIR /app
+WORKDIR /app 
 
 COPY --from=pruner /app/out/json/ .
 COPY --from=pruner /app/out/package-lock.json ./package-lock.json
 RUN npm install
 
 COPY --from=pruner /app/out/full/ .
-COPY tsconfig.base.json* ./ 
+COPY tsconfig.base.json* ./   
 
-ARG API_URL
-ENV NEXT_PUBLIC_API_URL=$API_URL
+ARG VITE_API_URL
+ARG VITE_FIREBASE_API_KEY
+ARG VITE_FIREBASE_AUTH_DOMAIN
+ARG VITE_FIREBASE_PROJECT_ID
+ARG VITE_FIREBASE_STORAGE_BUCKET
+ARG VITE_FIREBASE_MESSAGING_SENDER_ID
+ARG VITE_FIREBASE_APP_ID
 
-# Build apenas do frontend
+ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_FIREBASE_API_KEY=$VITE_FIREBASE_API_KEY
+ENV VITE_FIREBASE_AUTH_DOMAIN=$VITE_FIREBASE_AUTH_DOMAIN
+ENV VITE_FIREBASE_PROJECT_ID=$VITE_FIREBASE_PROJECT_ID
+ENV VITE_FIREBASE_STORAGE_BUCKET=$VITE_FIREBASE_STORAGE_BUCKET
+ENV VITE_FIREBASE_MESSAGING_SENDER_ID=$VITE_FIREBASE_MESSAGING_SENDER_ID
+ENV VITE_FIREBASE_APP_ID=$VITE_FIREBASE_APP_ID
+
 RUN npx turbo run build --filter=doramar-web
 
-# 3. Etapa Final (Nginx)
 FROM nginx:alpine AS runner
 WORKDIR /usr/share/nginx/html
 RUN rm -rf ./*
