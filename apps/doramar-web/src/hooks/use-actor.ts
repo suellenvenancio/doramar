@@ -14,32 +14,34 @@ export function useActor() {
 
       try {
         return actorService.makeActorFavorite(userId, actorId).then((actor) => {
+          if (!user) return
+
           if (!actor) {
-            const updatedFavorites = user?.favoriteActors.filter(
-              (favActor) => favActor.id !== actorId
+            const updatedFavorites = user.favoriteActors.filter(
+              (favActor) => favActor.id !== actorId,
             )
 
             setUser({
               ...user,
-              favoriteActors: updatedFavorites || [],
+              favoriteActors: updatedFavorites,
             })
 
             toast("Ator removido dos favoritos!")
-            return
+          } else {
+            setUser({
+              ...user,
+              favoriteActors: [...user.favoriteActors, actor],
+            })
+
+            toast(`${actor.name} adicionado aos favoritos!`)
           }
-
-          setUser({
-            ...user,
-            favoriteActors: [...user.favoriteActors, actor],
-          })
-
-          toast(`${actor.name} adicionado dos favoritos!`)
         })
       } catch (e) {
         console.error(`Erro salvar ator como favorito: ${e}`)
+        toast("Erro ao atualizar favoritos.")
       }
     },
-    [userId]
+    [userId],
   )
 
   return {
