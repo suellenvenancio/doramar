@@ -56,12 +56,14 @@ export function CreateAccountComponent() {
       <CustomInput
         name="name"
         control={control}
+        placeholder="nome"
         errorMessage={errors.name?.message}
         type="text"
         className="w-full md:w-100 px-4 py-4 border border-pink-500 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none transition-all"
       />
       <CustomInput
         name="email"
+        placeholder="e-mail"
         control={control}
         errorMessage={errors.email?.message}
         type="email"
@@ -70,6 +72,7 @@ export function CreateAccountComponent() {
       <CustomInput
         name="username"
         control={control}
+        placeholder="username"
         errorMessage={errors.username?.message}
         type="text"
         className="w-full  md:w-100 px-4 py-4 border border-pink-500 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none transition-all"
@@ -77,6 +80,7 @@ export function CreateAccountComponent() {
       <CustomInput
         name="password"
         control={control}
+        placeholder="senha"
         errorMessage={errors.password?.message}
         type="password"
         className="w-full  md:w-100 px-4 py-4 border border-pink-500 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none transition-all"

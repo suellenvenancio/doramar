@@ -58,12 +58,14 @@ export function LoginComponent() {
       <CustomInput
         name="email"
         control={control}
+        placeholder="e-mail"
         type="email"
         className="w-full md:w-100  px-4 py-4 border border-pink-500 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none transition-all"
       />
       <CustomInput
         name="password"
         control={control}
+        placeholder="senha"
         type="password"
         className="w-full md:w-100 px-6 py-4 border border-pink-500 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none transition-all"
       />

@@ -32,6 +32,7 @@ export function ForgotPassword() {
         <CustomInput
           name="email"
           type="email"
+          placeholder="e-mail"
           control={control}
           className="w-full md:w-100 px-6 py-4 border border-pink-500 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none transition-all mb-2"
         />
