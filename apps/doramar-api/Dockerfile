@@ -18,15 +18,13 @@ COPY --from=pruner /app/out/json/ .
 COPY --from=pruner /app/out/package-lock.json ./package-lock.json
 RUN npm install
 
-# 2. Copia o código fonte (Aqui o Turbo traz os arquivos da API)
 COPY --from=pruner /app/out/full/ .
- 
-COPY tsconfig.base.json* ./ 
-# ==========================================
 
-RUN npx prisma generate --schema=apps/doramar-api/prisma/schema.prisma
+  COPY tsconfig.base.json* ./ 
+
+
+RUN cd apps/doramar-api && npx prisma generate
 RUN npx turbo run build --filter=doramar-api
-RUN npm prune --production
 
 FROM node:20-alpine AS runner
 RUN apk add --no-cache openssl libc6-compat
@@ -38,8 +36,8 @@ COPY --from=builder /app/apps/doramar-api/package.json .
 COPY --from=builder /app/apps/doramar-api/dist ./dist
 COPY --from=builder /app/apps/doramar-api/prisma ./prisma
 
-COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/node_modules ./node_modules 
 
 EXPOSE 3000
 
-CMD ["node", "dist/server.js"]
+CMD ["pm2-runtime", "ecosystem.config.js"]
