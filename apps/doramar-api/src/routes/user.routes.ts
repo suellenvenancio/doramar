@@ -19,6 +19,7 @@ export function userRoutes() {
   const router = express.Router()
 
   router.get("/:userId", authenticate, findUserById)
+  router.get("/", findUserByEmail)
   router.post("/", validateData(userSchema), createUser)
   router.patch("/:userId", authenticate, updateUser)
   router.delete("/:userId", authenticate, deleteUserById)
