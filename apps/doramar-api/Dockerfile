@@ -30,7 +30,9 @@ FROM node:20-alpine AS runner
 RUN apk add --no-cache openssl libc6-compat
 WORKDIR /app
 
-ENV NODE_ENV=production
+ENV NODE_ENV=production 
+
+RUN npm install -g pm2
 
 COPY --from=builder /app/apps/doramar-api/package.json .
 COPY --from=builder /app/apps/doramar-api/dist ./dist
