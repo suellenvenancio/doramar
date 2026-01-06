@@ -39,6 +39,7 @@ COPY --from=builder /app/apps/doramar-api/dist ./dist
 COPY --from=builder /app/apps/doramar-api/prisma ./prisma
 
 COPY --from=builder /app/node_modules ./node_modules 
+COPY ecosystem.config.js .
 
 EXPOSE 3000
 
