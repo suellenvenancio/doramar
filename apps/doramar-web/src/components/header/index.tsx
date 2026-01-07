@@ -26,42 +26,40 @@ export function Header({
   page,
 }: HeaderProps) {
   return (
-    <header className="sticky top-0 z-50 flex flex-row justify-start bg-[#FEB5D0] p-2 w-full">
+    <header className="grid grid-cols-3 bg-[#FEB5D0] p-2 w-full">
       <img className="h-12 w-25 md:w-36" src={doramar} />
-      <div className="flex flex-row justify-start md:justify-between items-center w-full gap-2">
-        {page === "Home" && (
-          <div className="flex flex-row justify-start w-full items-center w- full">
-            <SearchInput
-              value={search ?? ""}
-              onChange={setSearch ?? (() => {})}
-              className="w-full md:w-[50%]"
+
+      {page === "Home" && (
+        <div className="grid grid-cols-[180px_1fr] md:grid-cols-[90%_1fr] items-center w-full col-span-2">
+          <SearchInput
+            value={search ?? ""}
+            onChange={setSearch ?? (() => {})}
+            className="md:w-[70%] m-0"
+          />
+          <div className="relative">
+            <IconButton
+              icon={<FilterIcon />}
+              onClick={setActivePopUp}
+              className="text-[#e91e63] ml-4"
             />
-            <div className="relative">
-              <IconButton
-                icon={<FilterIcon />}
-                onClick={setActivePopUp}
-                className="text-[#e91e63] ml-4"
+            {activePopup === ButtonTypeEnum.FILTER && (
+              <PopUpMenu
+                hasCheckBoxes={true}
+                type="Gêneros"
+                title="Gêneros"
+                items={
+                  genres?.map((genre) => {
+                    return { id: genre.id, label: genre.name }
+                  }) ?? []
+                }
+                onClick={onSelectGenre ?? (() => {})}
+                className="top-full right-0 mt-2"
+                selectedGenres={selectedGenres}
               />
-              {activePopup === ButtonTypeEnum.FILTER && (
-                <PopUpMenu
-                
-                  hasCheckBoxes={true}
-                  type="Gêneros"
-                  title="Gêneros"
-                  items={
-                    genres?.map((genre) => {
-                      return { id: genre.id, label: genre.name }
-                    }) ?? []
-                  }
-                  onClick={onSelectGenre ?? (() => {})}
-                  className="absolute top-full right-0 mt-2"
-                  selectedGenres={selectedGenres}
-                />
-              )}
-            </div>
+            )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </header>
   )
 }

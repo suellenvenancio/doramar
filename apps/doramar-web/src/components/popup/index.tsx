@@ -27,7 +27,7 @@ export function PopUpMenu({
   return (
     <div
       className={mergeCn(
-        `absolute bottom-full -left-10 md:left-1/2 transform md:-translate-x-1/2 mb-2 w-32 bg-gray-50 text-gray-700 text-xs border border-t border-gray-100 z-50 py-2`,
+        `absolute bottom-full md:left-1/2 transform md:-translate-x-1/2 mb-2 w-32 bg-gray-50 text-gray-700 text-xs border border-t border-gray-100 z-50 py-2`,
         className,
       )}
     >
