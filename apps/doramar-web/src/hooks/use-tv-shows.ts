@@ -11,7 +11,7 @@ export function useTvShow() {
     { id: number; label: string }[]
   >([])
   const [watchedTvShows, setWatchedTvShows] = useState<WatchedTvShow[]>([])
-
+  const [isLoadingTvShowsByPage, setIsLoadingTvShowsByPage] = useState(false)
   const { user } = useUser()
 
   const userId = user?.id
@@ -19,6 +19,7 @@ export function useTvShow() {
   useEffect(() => {
     const fetchTvShowAndWatchedStatus = async () => {
       try {
+        setIsLoadingTvShowsByPage(true)
         const [fetchedTvShows, fetchedWatchedStatus, fetchTvShowsByPage] =
           await Promise.all([
             tvShowService.getAllTvShows(),
@@ -30,6 +31,8 @@ export function useTvShow() {
         setTvShowByPage(fetchTvShowsByPage)
       } catch (e) {
         console.error("Erro ao buscar doramas e status assistido!", e)
+      } finally {
+        setIsLoadingTvShowsByPage(false)
       }
     }
     fetchTvShowAndWatchedStatus()
@@ -57,7 +60,7 @@ export function useTvShow() {
         await tvShowService.markTvShowAsWatched(
           userId,
           tvShow.id,
-          watchedStatusId
+          watchedStatusId,
         )
 
         const updatedWatchedTvShows =
@@ -67,7 +70,7 @@ export function useTvShow() {
         console.error("Erro ao marcar dorama como assistido!", e)
       }
     },
-    [userId]
+    [userId],
   )
 
   const fetchTvShowsByPage = async (page: number, limit: number) => {
@@ -98,5 +101,6 @@ export function useTvShow() {
     tvShowsByPage,
     fetchTvShowsByPage,
     getWatchedTvShowsByUserId,
+    isLoadingTvShowsByPage,
   }
 }

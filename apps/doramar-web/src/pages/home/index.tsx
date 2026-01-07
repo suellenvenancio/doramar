@@ -18,6 +18,7 @@ import { useActor } from "@/hooks/use-actor"
 import { useGenres } from "@//hooks/use-genres"
 import { Layout } from "@/components/layout"
 import { mergeCn } from "@/utils/cn"
+import { CircleIcon } from "@/components/icons/circle"
 
 export function HomePage() {
   const {
@@ -27,6 +28,7 @@ export function HomePage() {
     watchedTvShows,
     tvShowsByPage,
     fetchTvShowsByPage,
+    isLoadingTvShowsByPage,
   } = useTvShow()
   const { lists, addTvShowToList, createList } = useList()
   const { user, markTvShowAsFavorite } = useUser()
@@ -183,35 +185,54 @@ export function HomePage() {
       }}
     >
       <div className="w-full mt-6 flex flex-col md:flex-row md:flex-wrap md:items-start md:justify-evenly p-6">
-        {tvShowsToRender.map((show) => {
-          const watchedStatusColor = getStatusColor(watchedTvShows, show.id)
+        {isLoadingTvShowsByPage ? (
+          <div className="flex flex-col items-center justify-center w-full py-24">
+            <CircleIcon className="h-12 w-12 text-pink-600" />
+            <p className="mt-4 text-pink-600 font-medium">
+              Carregando doramas...
+            </p>
+          </div>
+        ) : tvShowsToRender.length > 0 ? (
+          tvShowsToRender.map((show) => {
+            const watchedStatusColor = getStatusColor(watchedTvShows, show.id)
 
-          return (
-            <DramaItem
-              key={show.id}
-              show={show}
-              watchedStatus={watchedStatus}
-              watchedStatusColor={watchedStatusColor}
-              lists={lists}
-              handleWatchStatusChange={handleWatchStatusChange}
-              handleAddTvShowToList={handleAddTvShowToList}
-              setShowCreateListModal={setShowCreateListModal}
-              initialRating={
-                ratings.find((r) => r.tvShow.id === show.id)?.scaleId ?? 0
-              }
-              isFavorite={favoriteTvShows?.id === show.id}
-              onMakeTvShowFavoriteFavorite={markTvShowAsFavorite}
-              onRate={createRating}
-              onClickShowCastModalButton={() => handleCastModalButton(show)}
-            />
-          )
-        })}
+            return (
+              <DramaItem
+                key={show.id}
+                show={show}
+                watchedStatus={watchedStatus}
+                watchedStatusColor={watchedStatusColor}
+                lists={lists}
+                handleWatchStatusChange={handleWatchStatusChange}
+                handleAddTvShowToList={handleAddTvShowToList}
+                setShowCreateListModal={setShowCreateListModal}
+                initialRating={
+                  ratings.find((r) => r.tvShow.id === show.id)?.scaleId ?? 0
+                }
+                isFavorite={favoriteTvShows?.id === show.id}
+                onMakeTvShowFavoriteFavorite={markTvShowAsFavorite}
+                onRate={createRating}
+                onClickShowCastModalButton={() => handleCastModalButton(show)}
+              />
+            )
+          })
+        ) : (
+          <div className="flex flex-col items-center justify-center py-24 text-center m-2">
+            <p className="text-lg font-semibold text-[#6E5A6B]">
+              Não existe nenhum dorama disponível!
+            </p>
+            
+          </div>
+        )}
       </div>
-      <Pagination
-        currentPage={currentPage ?? 1}
-        totalPages={totalPages ?? 0}
-        onPageChange={onPageChange}
-      />
+      {tvShowsToRender.length > 0 && (
+        <Pagination
+          currentPage={currentPage ?? 1}
+          totalPages={totalPages ?? 0}
+          onPageChange={onPageChange}
+        />
+      )}
+
       <CastModal
         isOpen={showCastModal}
         onClose={() => setShowCastModal(false)}
