@@ -11,7 +11,7 @@ import { TextButton } from "@/components/textButton"
 import { toast } from "@/components/toast"
 import { useCommunities } from "@/hooks/use-communities"
 import { useUser } from "@/hooks/use-user"
-import {  type Post, type ReactionTargetType, type ReactionType } from "@/types"
+import {  CommunityRole, CommunityVisibility, type Post, type ReactionTargetType, type ReactionType } from "@/types"
  
 import { useCallback, useEffect, useRef, useState } from "react"
 import { Controller, useForm } from "react-hook-form"
@@ -119,9 +119,10 @@ export function CommunityDetails() {
   }
   
   const userIsCommunityMember = community?.members.some(m => m.userId === user?.id)
-  const userIsCommunityOwner = community?.owner.id === user?.id
+  const  userCanAddCommunityMember = community?.owner.id === user?.id || community?.members.some(m => m.userId === user?.id && m.role === CommunityRole.MODERATOR)
   
   const communityVisibility = community?.visibility
+  const commuityIsPrivateOrSecret = communityVisibility === CommunityVisibility.PRIVATE || communityVisibility === CommunityVisibility.SECRET
 
   const onSearchMember = useCallback(
    async (email: string) => {
@@ -151,7 +152,7 @@ export function CommunityDetails() {
                 </div>
               </div>
 
-              {userIsCommunityOwner && (
+              {userCanAddCommunityMember && commuityIsPrivateOrSecret && (
                 <CustomButton
                   name={"add membro"}
                   loading={false}
@@ -171,7 +172,7 @@ export function CommunityDetails() {
                 className=" w-40 rounded-xl border bg-white border-pink-600 px-4 py-2 text-sm font-medium text-pink-600 transition hover:bg-pink-50 md:hidden"
               />
 
-              {!userIsCommunityMember && (
+              {!userIsCommunityMember && communityVisibility === CommunityVisibility.PUBLIC && (
                 <CustomButton
                   name={"+ entrar"}
                   loading={false}
@@ -228,7 +229,7 @@ export function CommunityDetails() {
               </div>
             </form>
           )}
-          {userIsCommunityMember && (
+          {userIsCommunityMember || communityVisibility === CommunityVisibility.PUBLIC && (
             <div className="flex flex-col justify-center gap-4 w-full">
               {posts?.map((post) => (
                 <PostComponent
