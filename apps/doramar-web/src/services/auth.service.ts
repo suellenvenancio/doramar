@@ -29,25 +29,16 @@ export class AuthService {
     return onAuthStateChanged(this.firebaseAuth, callback)
   }
 
-  signIn(email: string, password: string): Promise<UserCredential> {
-    return signInWithEmailAndPassword(this.firebaseAuth, email, password)
+  async signIn(email: string, password: string): Promise<UserCredential> {
+    return await signInWithEmailAndPassword(this.firebaseAuth, email, password)
   }
 
-  createAccount(email: string, password: string): Promise<UserCredential> {
-    return createUserWithEmailAndPassword(this.firebaseAuth, email, password)
-  }
-
-  signOut(): Promise<void> {
+  async signOut(): Promise<void> {
     return signOut(this.firebaseAuth)
   }
 
   resetPassword(email: string): Promise<void> {
     return sendPasswordResetEmail(this.firebaseAuth, email)
-  }
-
-  async updateUsername(username: string): Promise<void> {
-    if (!this.currentUser) return
-    await updateProfile(this.currentUser, { displayName: username })
   }
 
   async deleteAccount(email: string, password: string): Promise<void> {
@@ -61,7 +52,7 @@ export class AuthService {
   async resetPasswordFromCurrentPassword(
     currentPassword: string,
     newPassword: string,
-    email: string
+    email: string,
   ): Promise<void> {
     if (!this.currentUser) return
     const credential = EmailAuthProvider.credential(email, currentPassword)
