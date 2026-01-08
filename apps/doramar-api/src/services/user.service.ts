@@ -3,6 +3,7 @@ import tvShowRepository from "../repository/tvshow.repository"
 import userRepository from "../repository/user.repository"
 import { RegisterUserInput, User } from "../types"
 import { AppError } from "../utils/errors"
+import { getAuth } from "firebase-admin/auth"
 
 import { put } from "@vercel/blob"
 
@@ -53,10 +54,46 @@ async function findUserById(id: string) {
 
 async function createUser(data: RegisterUserInput) {
   try {
-    await userRepository.validationUniqueEmail(data.email)
-    await userRepository.validationUniqueUsername(data.username)
+    await getAuth()
+      .createUser({
+        email: data.email,
+        password: data.password,
+        displayName: data.name,
+      })
+      .then(async () => {
+        return await validateAndCreateUser(data)
+      })
+      .catch(async (error) => {
+        if (
+          error.message ===
+          "The email address is already in use by another account."
+        ) {
+          return await validateAndCreateUser(data)
+        }
+        console.error("Error creating user in Firebase:", error)
+        throw error
+      })
+  } catch (error) {
+    console.error("Error creating user:", error)
+    throw error
+  }
+}
+async function validateAndCreateUser({
+  email,
+  username,
+  name,
+  password,
+}: {
+  email: string
+  username: string
+  name: string
+  password: string
+}) {
+  try {
+    await userRepository.validationUniqueEmail(email)
+    await userRepository.validationUniqueUsername(username)
 
-    return userRepository.createUser(data)
+    return await userRepository.createUser({ email, username, name, password })
   } catch (error) {
     console.error("Error creating user:", error)
     throw error
