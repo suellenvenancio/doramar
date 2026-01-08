@@ -35,7 +35,7 @@ export function Layout({
       )}
     >
       <Header {...{ page, ...headerProps && headerProps }} />
-      <div className="flex md:flex-row w-full md:items-start items-center">
+      <div className="flex md:flex-row w-full md:items-start items-center mt-4">
         <SideBar />
         <main className="mb-12 w-full">{children}</main>
       </div>

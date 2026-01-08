@@ -3,8 +3,6 @@ import { AuthContext } from "@/context/auth.context"
 import { userService } from "@/services/user.service"
 import { toast } from "@/components/toast"
 import type { TvShow } from "@/types"
-import { AuthService } from "@/services/auth.service"
-import { auth } from "@/firebase.config"
 
 export function useAuthContext() {
   const context = useContext(AuthContext)
@@ -39,7 +37,7 @@ export function useUser() {
         console.error("Erro ao marcar dorama como favorito", error)
       }
     },
-    [user, setUser]
+    [user, setUser],
   )
 
   const createAccount = async ({
@@ -54,8 +52,6 @@ export function useUser() {
     username: string
   }) => {
     try {
-      const authService = new AuthService(auth)
-      await authService.createAccount(email, password)
       await userService.createUser({
         name: name,
         email: email,

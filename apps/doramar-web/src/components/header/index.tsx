@@ -26,7 +26,7 @@ export function Header({
   page,
 }: HeaderProps) {
   return (
-    <header className="grid grid-cols-3 bg-[#FEB5D0] p-2 w-full">
+    <header className="sticky top-0 z-50 grid grid-cols-3 bg-[#FEB5D0] p-2 w-full">
       <img className="h-12 w-25 md:w-36" src={doramar} />
 
       {page === "Home" && (
