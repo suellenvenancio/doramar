@@ -54,7 +54,7 @@ async function findUserById(id: string) {
 
 async function createUser(data: RegisterUserInput) {
   try {
-    await getAuth()
+    return await getAuth()
       .createUser({
         email: data.email,
         password: data.password,
