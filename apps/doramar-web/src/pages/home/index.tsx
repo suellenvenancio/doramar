@@ -1,8 +1,8 @@
 import { useTvShow } from "@/hooks/use-tv-shows"
 
 import { useList } from "@/hooks/use-list"
-import { DramaItem } from "@/components/dramaItem"
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { TVShowItem } from "@/components/tvShowItem"
+import { useCallback, useEffect, useState } from "react"
 import { CreateListModal } from "@/components/modal/createListModal"
 import { useUser } from "@/hooks/use-user"
 import { useRating } from "@/hooks/use-rating"
@@ -197,7 +197,7 @@ export function HomePage() {
             const watchedStatusColor = getStatusColor(watchedTvShows, show.id)
 
             return (
-              <DramaItem
+              <TVShowItem
                 key={show.id}
                 show={show}
                 watchedStatus={watchedStatus}

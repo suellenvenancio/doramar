@@ -38,7 +38,7 @@ const statusColorClassMap: Record<string, string> = {
   gray: "text-gray-400",
 }
 
-export function DramaItem({
+export function TVShowItem({
   show,
   lists,
   handleWatchStatusChange,

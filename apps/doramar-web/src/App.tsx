@@ -15,13 +15,30 @@ import { auth } from "./firebase.config"
 import type { User } from "@firebase/auth"
 import { ProtectedRoute } from "./components/protectedRoutes"
 import { ProfilePage } from "./pages/profile"
+import { CircleIcon } from "./components/icons/circle"
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)  
 
-  useEffect(() => {
-    auth.onAuthStateChanged(setUser)
-  },[])
+ useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+      setUser(currentUser)
+      setLoading(false)  
+  })
+
+  return () => unsubscribe() 
+  }, [])
+
+
+  if (loading) {
+  return (
+    <div className="flex items-center justify-center h-screen">
+      <CircleIcon className="h-12 w-12 text-pink-600" />
+    </div>
+  )
+  }
+  
   return (
     <AuthProvider>
       <AppToastContainer />
