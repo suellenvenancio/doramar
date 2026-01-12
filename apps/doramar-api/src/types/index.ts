@@ -1,9 +1,9 @@
-export interface TvShows {
+export interface TvShow {
   id: string
   title: string
   synopsis: string
   poster: string
-  premiereDate: string
+  premiereDate: Date
   originalName: string
   createdAt: Date
 }
@@ -13,6 +13,7 @@ export interface RegisterUserInput {
   username: string
   email: string
   password: string
+  id: string
 }
 
 export interface User {
