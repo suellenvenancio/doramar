@@ -16,7 +16,7 @@ import {
   uploadCommunityCoverPicture,
   uploadCommunityProfilePicture,
 } from "../controller/communities.controller"
-import { upload } from "@/middleware/upload"
+import { upload } from "../middleware/upload"
 
 export function communitiesRoutes() {
   const router = express.Router()
