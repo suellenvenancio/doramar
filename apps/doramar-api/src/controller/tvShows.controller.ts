@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express"
 import { sendResponse } from "../utils/sendResponse"
 import { AppError } from "../utils/errors"
-import tvShowsService from "../services/tvShows.service"
+import tvShowsService from "../services/tvshows.service"
 
 export async function getTvShowsByPage(
   req: Request,
