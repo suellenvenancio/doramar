@@ -21,7 +21,14 @@ const app = express()
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",")
 
 const corsOptions: cors.CorsOptions = {
-  origin: allowedOrigins,
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins?.includes(origin)) {
+      callback(null, true)
+    } else {
+      console.log("Bloqueado pelo CORS:", origin)
+      callback(new Error("Not allowed by CORS"))
+    }
+  },
   credentials: true,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
 }
