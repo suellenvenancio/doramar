@@ -2,7 +2,6 @@ import { useCallback, useContext } from "react"
 import { AuthContext } from "@/context/auth.context"
 import { userService } from "@/services/user.service"
 import { toast } from "@/components/toast"
-import type { TvShow } from "@/types"
 
 export function useAuthContext() {
   const context = useContext(AuthContext)
@@ -15,30 +14,7 @@ export function useAuthContext() {
 }
 
 export function useUser() {
-  const { user, setUser, login } = useAuthContext()
-
-  const markTvShowAsFavorite = useCallback(
-    async (tvShow: TvShow) => {
-      try {
-        if (!user) return
-
-        await userService
-          .addTVShowToFavorites(user.id, tvShow.id)
-          .then((updatedUser) => {
-            const tvShowRemovedOrAdded = updatedUser.favoriteTvShow
-              ? "adicionado "
-              : "removido"
-
-            setUser(updatedUser)
-            toast(`${tvShow.title} ${tvShowRemovedOrAdded} como favorito!`)
-          })
-          .catch(() => toast(`Erro ao adicionar ${tvShow.title} como favorito`))
-      } catch (error) {
-        console.error("Erro ao marcar dorama como favorito", error)
-      }
-    },
-    [user, setUser],
-  )
+  const { user, setUser, login, isLoading } = useAuthContext()
 
   const createAccount = async ({
     email,
@@ -56,6 +32,7 @@ export function useUser() {
         name: name,
         email: email,
         username: username,
+        password: password,
       })
     } catch (error) {
       console.error("Erro ao criar usuário", error)
@@ -83,15 +60,6 @@ export function useUser() {
     }
   }
 
-  const findUserByUsername = useCallback(async (username: string) => {
-    try {
-      return await userService.findUserByUsername(username)
-    } catch (error) {
-      console.error("Erro ao buscar usuário", error)
-      return null
-    }
-  }, [])
-
   const findUserByEmail = useCallback(async (email: string) => {
     try {
       return await userService.findUserByEmail(email)
@@ -104,12 +72,11 @@ export function useUser() {
   return {
     user,
     setUser,
-    markTvShowAsFavorite,
     login,
     createAccount,
     uploadProfilePicture,
     findUserById,
-    findUserByUsername,
     findUserByEmail,
+    isLoading,
   }
 }

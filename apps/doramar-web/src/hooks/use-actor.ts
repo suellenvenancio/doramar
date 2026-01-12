@@ -1,12 +1,34 @@
-import { useCallback } from "react"
+import { use, useCallback, useEffect, useState } from "react"
 import { useUser } from "./use-user"
-import { actorService } from "@/services/actor.service "
+import { actorService } from "@/services/actors.service "
 import { toast } from "@/components/toast"
+import { Actor } from "@/types"
+import { set } from "zod"
 
 export function useActor() {
   const { user, setUser } = useUser()
+  const [favoriteActors, setFavoriteActors] = useState<Actor[]>([])
 
   const userId = user?.id
+
+  const findFavoriteActorsByUserId = useCallback(
+    async (userId: string) => {
+      try {
+        return await actorService.findFavoriteActorsByUserId(userId)
+      } catch (e) {
+        console.error(`Erro ao buscar atores favoritos: ${e}`)
+        return []
+      }
+    },
+    [userId],
+  )
+
+  useEffect(() => {
+    if (!userId) return
+    findFavoriteActorsByUserId(userId).then((actors) => {
+      setFavoriteActors(actors)
+    })
+  }, [userId])
 
   const markActorAsFavorite = useCallback(
     async (actorId: string) => {
@@ -17,21 +39,15 @@ export function useActor() {
           if (!user) return
 
           if (!actor) {
-            const updatedFavorites = user.favoriteActors.filter(
+            const updatedFavorites = favoriteActors.filter(
               (favActor) => favActor.id !== actorId,
             )
 
-            setUser({
-              ...user,
-              favoriteActors: updatedFavorites,
-            })
+            setFavoriteActors(updatedFavorites)
 
             toast("Ator removido dos favoritos!")
           } else {
-            setUser({
-              ...user,
-              favoriteActors: [...user.favoriteActors, actor],
-            })
+            setFavoriteActors([...favoriteActors, actor])
 
             toast(`${actor.name} adicionado aos favoritos!`)
           }
@@ -46,5 +62,7 @@ export function useActor() {
 
   return {
     markActorAsFavorite,
+    favoriteActors,
+    findFavoriteActorsByUserId,
   }
 }

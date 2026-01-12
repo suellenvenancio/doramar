@@ -41,7 +41,7 @@ export function useCommunities() {
           description,
         })
         .then((newCommunity) =>
-          setCommunities((prev) => [...prev, newCommunity])
+          setCommunities((prev) => [...prev, newCommunity]),
         )
         .catch(() => toast("Erro ao criar a comunidade!"))
     } catch (error) {
@@ -91,7 +91,7 @@ export function useCommunities() {
   const createComment = async (
     postId: string,
     communityId: string,
-    content: string
+    content: string,
   ) => {
     try {
       if (!userId) return
@@ -147,7 +147,7 @@ export function useCommunities() {
 
   const addMemberOnTheCommunity = async (
     communityId: string,
-    userId: string
+    userId: string,
   ) => {
     try {
       communitiesService
@@ -161,12 +161,118 @@ export function useCommunities() {
                 ...community,
                 members: [...community.members, newMember],
               }
-            })
+            }),
           )
         })
         .catch((e) => toast("Erro ao adicionar participante"))
     } catch (error) {
       console.error("Erro ao adicionar participante a comunidade", error)
+    }
+  }
+
+  const uploadCommunityProfilePicture = async ({
+    communityId,
+    formData,
+  }: {
+    communityId: string
+    formData: FormData
+  }) => {
+    console.log(formData)
+    try {
+      return await communitiesService
+        .uploadCommunityProfilePicture({
+          communityId,
+          formData,
+        })
+        .then((communityWithNewAvatar) => {
+          setCommunities((prev) =>
+            prev.map((community) =>
+              community.id === communityWithNewAvatar.id
+                ? communityWithNewAvatar
+                : community,
+            ),
+          )
+          return communityWithNewAvatar
+        })
+        .catch(() => {
+          toast("Erro ao fazer upload da imagem do perfil da comunidade")
+        })
+    } catch (error) {
+      console.error(
+        "Erro ao fazer upload da imagem do perfil da comunidade",
+        error,
+      )
+    }
+  }
+
+  const uploadCommunityCoverPicture = async ({
+    communityId,
+    formData,
+  }: {
+    communityId: string
+    formData: FormData
+  }) => {
+    try {
+      await communitiesService
+        .uploadCommunityCoverPicture({
+          communityId,
+          formData,
+        })
+        .then((communityWithNewCoverPicture) => {
+          setCommunities((prev) =>
+            prev.map((community) =>
+              community.id === communityWithNewCoverPicture.id
+                ? communityWithNewCoverPicture
+                : community,
+            ),
+          )
+          return communityWithNewCoverPicture
+        })
+        .catch(() => {
+          toast("Erro ao fazer upload da imagem de capa da comunidade")
+        })
+    } catch (error) {
+      console.error(
+        "Erro ao fazer upload da imagem de capa da comunidade",
+        error,
+      )
+    }
+  }
+
+  const deleteCommunity = async (communityId: string) => {
+    try {
+      await communitiesService.deleteCommunity(communityId)
+      setCommunities((prev) =>
+        prev.filter((community) => community.id !== communityId),
+      )
+      toast("Comunidade deletada com sucesso!")
+    } catch (error) {
+      console.error("Erro ao deletar comunidade", error)
+      toast("Erro ao deletar comunidade")
+    }
+  }
+
+  const deletePost = async (postId: string, communityId: string) => {
+    try {
+      await communitiesService.deletePost(postId, communityId)
+      toast("Post deletado com sucesso!")
+    } catch (error) {
+      console.error("Erro ao deletar post", error)
+      toast("Erro ao deletar post")
+    }
+  }
+
+  const deleteComment = async (params: {
+    commentId: string
+    communityId: string
+    postId: string
+  }) => {
+    try {
+      await communitiesService.deleteComment(params)
+      toast("Comentário deletado com sucesso!")
+    } catch (error) {
+      console.error("Erro ao deletar comentário", error)
+      toast("Erro ao deletar comentário")
     }
   }
 
@@ -180,5 +286,10 @@ export function useCommunities() {
     createReaction,
     getReactionsByPostId,
     addMemberOnTheCommunity,
+    uploadCommunityProfilePicture,
+    uploadCommunityCoverPicture,
+    deleteCommunity,
+    deletePost,
+    deleteComment,
   }
 }

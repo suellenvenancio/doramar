@@ -1,16 +1,23 @@
-import type { User } from "@firebase/auth"
+import { useUser } from "@/hooks/use-user"
 import type { ReactElement } from "react"
- import { Navigate } from "react-router-dom"
+import { Navigate } from "react-router-dom"
+import { CircleIcon } from "../icons/circle"
 
 export function ProtectedRoute({
-  user,
   children,
 }: {
-  user: User | null
   children: ReactElement
-}) {
+  }) { 
+  const { user, isLoading } = useUser()
+
+  if (isLoading) {
+    return  (<div className="flex flex-col items-center justify-center w-full py-24">
+    <CircleIcon className="h-12 w-12 text-pink-600" /> 
+  </div>)
+  }
+
   if (!user) {
-    return <Navigate to="/"   />
+    return <Navigate to="/" />
   }
   return children
 }

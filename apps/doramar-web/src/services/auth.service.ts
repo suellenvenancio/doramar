@@ -1,10 +1,8 @@
 import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
   signOut,
   sendPasswordResetEmail,
-  updateProfile,
   EmailAuthProvider,
   reauthenticateWithCredential,
   updatePassword,

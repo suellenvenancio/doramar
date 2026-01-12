@@ -13,10 +13,13 @@ import { useCommunities } from "@/hooks/use-communities"
 import { useUser } from "@/hooks/use-user"
 import {  CommunityRole, CommunityVisibility, type Post, type ReactionTargetType, type ReactionType } from "@/types"
  
-import { useCallback, useEffect, useRef, useState } from "react"
+import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react"
 import { Controller, useForm } from "react-hook-form"
-import { useParams } from "react-router-dom"
-import z, { string } from "zod"
+import { useNavigate, useParams } from "react-router-dom"
+import z from "zod"  
+import { IconButton } from "@/components/button/iconButton" 
+import { TrashIcon } from "@/components/icons/trash"
+import { ConfirmationModal } from "@/components/modal/confirmationModal"
 
 const createPostSchema = z.object({
   content: z.string().min(3, "O nome deve ter pelo menos 3 caracteres"),
@@ -34,41 +37,63 @@ export function CommunityDetails() {
     createReaction,
     getReactionsByPostId,
     addMemberOnTheCommunity,
+    uploadCommunityProfilePicture,
+    uploadCommunityCoverPicture,
+    deleteCommunity,
+    deletePost,
+    deleteComment,
   } = useCommunities()
   const { communityId } = useParams()
   const { user, findUserByEmail } = useUser()
   const userId = user?.id
 
+  const fileAvatarRef = useRef<HTMLInputElement>(null)
+  const fileCoverRef = useRef<HTMLInputElement>(null) 
+
   const [posts, setPosts] = useState<Post[]>([])
   const [modalIsOpen, setModalIsOpen] = useState(false)
   const [showAddMemberModal, setShowAddMemberModal] = useState(false)
+  const [isUploadingCover, setIsUploadingCover] = useState(false)
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
+  const [showCommunityModal, setShowCommunityModal] = useState(false)
+  
+  const community = communities?.find((c) => c.id === communityId)
+
+  const { reset, control, handleSubmit } = useForm<FormData>({})
+  const navigate = useNavigate()
 
   useEffect(() => {
     const fetchPosts = async () => {
       try {
         if (!communityId) return
-        const posts = await getCommunityPosts(communityId)
-        setPosts(posts ?? [])
+        const fetchedPosts = await getCommunityPosts(communityId)
+        if (fetchedPosts) {
+            const sortedPosts = [...fetchedPosts].sort((a, b) => {
+            return (
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            )
+          })
+          setPosts(sortedPosts)
+        }
       } catch (error) {
         console.error("Failed to fetch communities:", error)
       }
     }
     fetchPosts()
-  }, [communityId])
-  
+  }, [communityId]) 
 
-  const { reset, control, handleSubmit } = useForm<FormData>({})
-
-  const community = communities?.find((c) => c.id === communityId)
   const onCreatePost = async ({ content }: FormData) => {
-     if (!communityId) return
+    if (!communityId) {
+      toast("Erro ao criar o post!")
+      return
+    }
 
     const newPost = await createPost({ communityId, content })
 
     if (!newPost) return 
     
-    setPosts(prev => [...prev, newPost])
-    reset()
+    setPosts((prev) => [newPost, ...prev])
+    reset({content: ""})
   }
 
   const fetchPostComments = async (postId: string) => {
@@ -99,9 +124,8 @@ export function CommunityDetails() {
     targetType: ReactionTargetType
     type: ReactionType
     }) => {
-    if (!communityId) return 
-    
-   return await createReaction({
+    if (!communityId) return  
+    return await createReaction({
       postId,
       communityId,
       targetType,
@@ -119,79 +143,234 @@ export function CommunityDetails() {
   }
   
   const userIsCommunityMember = community?.members.some(m => m.userId === user?.id)
-  const  userCanAddCommunityMember = community?.owner.id === user?.id || community?.members.some(m => m.userId === user?.id && m.role === CommunityRole.MODERATOR)
+
+  const userIsOwnerOrModerator = community?.owner.id === user?.id || community?.members.some(m => m.userId === user?.id && (m.role === CommunityRole.ADMIN || m.role === CommunityRole.MODERATOR))
   
   const communityVisibility = community?.visibility
-  const commuityIsPrivateOrSecret = communityVisibility === CommunityVisibility.PRIVATE || communityVisibility === CommunityVisibility.SECRET
 
+  const commuityIsPrivateOrSecret = communityVisibility === CommunityVisibility.PRIVATE || communityVisibility === CommunityVisibility.SECRET
+ 
   const onSearchMember = useCallback(
-   async (email: string) => {
+  async (email: string) => {
       return await findUserByEmail(email) 
     },
     [],
   )
   
   const onAddMember = useCallback(async (userId: string) => {
-    if (!communityId) return 
+    if (!communityId) return toast("Erro ao adicionar membro!")
 
     await addMemberOnTheCommunity(communityId, userId)
     setShowAddMemberModal(false) 
-  }, [])
- 
-  return (
-    <Layout page="Communities">
-      <div className="w-full p-4 grid grid-cols-3 gap-6 items-start">
-        <div className="col-span-2 flex flex-col gap-6">
-          <div className="max-w-dvw min-w-88 w-auto bg-white rounded-xl shadow-sm overflow-hidden border border-pink-100 p-4">
-            <div className="flex justify-between p-2">
-              <div>
-                <p className="text-xl mb-2">{community?.name}</p>
-                <div className="flex flex-row gap-2 mb-2">
-                  <CommunityIcon />
-                  <p>{community?.members.length} membros</p>
-                </div>
-              </div>
+  }, []) 
 
-              {userCanAddCommunityMember && commuityIsPrivateOrSecret && (
-                <CustomButton
-                  name={"add membro"}
-                  loading={false}
-                  className={
-                    "w-24 rounded-xl border border-pink-600 px-4 py-2 text-sm font-medium text-white h-12"
-                  }
-                  onClick={() => setShowAddMemberModal(true)}
+  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+ 
+    const formData = new FormData()
+    formData.append("file", file)
+ 
+    try {
+      if(!communityId) return toast("Erro ao fazer upload da imagem!")
+      setIsUploadingAvatar(true)
+
+      await uploadCommunityProfilePicture({formData, communityId:communityId})
+    } catch (error) {
+      console.error(error)
+      toast("Erro ao fazer upload da imagem")
+    } finally {
+      setIsUploadingAvatar(false)
+
+      if (fileAvatarRef.current) fileAvatarRef.current.value = ""
+    }
+  }
+  
+    const handleCoverFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0]
+      if (!file) return
+
+      const formData = new FormData()
+      formData.append("file", file)
+      try {
+      if (!communityId) return toast("Erro ao fazer upload da imagem!")
+
+        setIsUploadingCover(true)
+
+        await uploadCommunityCoverPicture({
+          formData,
+          communityId: communityId,
+        })
+      } catch (error) {
+        console.error(error)
+        toast("Erro ao fazer upload da imagem")
+      } finally {
+        setIsUploadingCover(false)
+
+        if (fileCoverRef.current) fileCoverRef.current.value = ""
+      }
+    }
+  
+  const handleDeleteCommunity = useCallback(async (communityId: string) => {
+    await deleteCommunity(communityId).then(() => {
+      navigate("/communities")
+    })
+  }, [])
+  
+  const handleDeletePost = useCallback(async (postId: string) => {
+    if (!communityId) {
+      toast("Erro ao deletar o post!")
+      return
+    }
+    
+    await deletePost(postId, communityId)
+    setPosts(prev => prev.filter(post => post.id !== postId))
+    }, [ communityId])
+  
+  const handleDeleteComment = useCallback(async (commentId: string, postId: string) => {
+    if (!communityId) {
+      toast("Erro ao deletar o comentário!")
+      return
+    }
+    
+    await deleteComment({ commentId, communityId, postId })
+    }, [ communityId])
+  return (
+    <Layout page="Communities" className="min-w-100">
+      <div className="w-full p-4 grid grid-cols-3 gap-6 items-start">
+        <div className="col-span-3 md:col-span-2 flex flex-col gap-6">
+          <div className="relative mt-4">
+            <div
+              onClick={() => fileCoverRef.current?.click()}
+              className="max-w-dvw min-w-88"
+            >
+              {community?.coverUrl ? (
+                <img
+                  src={community.coverUrl}
+                  alt="cover"
+                  className="h-42 w-full bg-cover absolute -top-10 rounded-xl"
                 />
+              ) : (
+                <div className="h-42 w-full bg-cover absolute -top-10 bg-pink-600 rounded-xl flex items-center justify-center" />
+              )}
+              {isUploadingCover && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-full">
+                  <span className="text-white text-xs font-bold">...</span>
+                </div>
               )}
             </div>
+            <input
+              type="file"
+              ref={fileCoverRef}
+              className="hidden"
+              accept="image/*"
+              onChange={handleCoverFileChange}
+            />
 
-            <div className="flex flex-row justify-evenly md:justify-start">
-              <CustomButton
-                onClick={() => setModalIsOpen(true)}
-                loading={false}
-                name="ver participantes"
-                className=" w-40 rounded-xl border bg-white border-pink-600 px-4 py-2 text-sm font-medium text-pink-600 transition hover:bg-pink-50 md:hidden"
-              />
+            <div className="relative mt-21 w-full bg-[#FEF3F8] rounded-xl shadow-sm border border-pink-100 p-4">
+              <div className="flex flex-row items-center gap-2">
+                <div className="flex flex-row gap-72 m-4">
+                  <div
+                    className={`absolute -top-21 left-4 ${isUploadingAvatar ? "animate-pulse" : ""} cursor-pointer`}
+                    onClick={
+                      userIsOwnerOrModerator
+                        ? () => fileAvatarRef.current?.click()
+                        : undefined
+                    }
+                    title="Clique para alterar a foto"
+                  >
+                    <Avatar
+                      title={community?.name ?? ""}
+                      imageUrl={community?.avatarUrl}
+                      className="h-42 w-36 shadow-lg rounded-xl"
+                    />
+                    {isUploadingAvatar && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-full">
+                        <span className="text-white text-xs font-bold">
+                          ...
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <input
+                    type="file"
+                    ref={fileAvatarRef}
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                  />
+                  <div className="mt-18">
+                    <p className="text-xl md:text-2xl mb-2 font-bold">
+                      {community?.name}
+                    </p>
+                    <div className="flex flex-row gap-1">
+                      <CommunityIcon />
+                      <p className="text-sm md:text-base">
+                        {community?.members.length} membro(s)
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                {userIsOwnerOrModerator && (
+                  <div className="absolute top-4 right-4 z-20">
+                    <IconButton
+                      icon={<TrashIcon className="text-pink-600" />}
+                      onClick={() => setShowCommunityModal(!showCommunityModal)}
+                    />
+                    <ConfirmationModal
+                      isOpen={showCommunityModal}
+                      onClose={() => setShowCommunityModal(false)}
+                      onClick={handleDeleteCommunity} 
+                      id={communityId ?? ""}
+                      question={"Tem certeza que deseja deletar esta comunidade?"}
+                    />
+                  </div>
+                )}
 
-              {!userIsCommunityMember && communityVisibility === CommunityVisibility.PUBLIC && (
-                <CustomButton
-                  name={"+ entrar"}
-                  loading={false}
-                  className={
-                    "w-24 rounded-xl border border-pink-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-pink-50"
-                  }
-                  onClick={() =>
-                    communityId
-                      ? addMemberOnTheCommunity(communityId, user?.id ?? "")
-                      : toast("Erro ao entrar na comunidade!")
-                  }
-                />
-              )}
+                <div className="flex justify-start p-2 flex-1">
+                  {userIsOwnerOrModerator && commuityIsPrivateOrSecret && (
+                    <CustomButton
+                      name={"add membro"}
+                      loading={false}
+                      className="w-24 rounded-xl border border-pink-600 px-4 py-2 text-sm font-medium text-white h-12 bg-pink-600"
+                      onClick={() => setShowAddMemberModal(true)}
+                    />
+                  )}
+                </div>
+
+                <div className="flex flex-col items-end justify-evenly md:justify-start gap-4">
+                  {!userIsCommunityMember &&
+                    communityVisibility === CommunityVisibility.PUBLIC && (
+                      <CustomButton
+                        name={"+ entrar"}
+                        loading={false}
+                        className={
+                          "w-24 rounded-xl border border-pink-600 px-4 py-2 text-sm font-medium text-white transition"
+                        }
+                        onClick={() =>
+                          communityId
+                            ? addMemberOnTheCommunity(
+                                communityId,
+                                user?.id ?? "",
+                              )
+                            : toast("Erro ao entrar na comunidade!")
+                        }
+                      />
+                    )}
+                  <CustomButton
+                    onClick={() => setModalIsOpen(true)}
+                    loading={false}
+                    name="ver participantes"
+                    className="w-40 rounded-xl border bg-white border-pink-600 px-4 py-2 text-sm font-medium text-pink-600 transition md:hidden"
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
           {userIsCommunityMember && (
             <form
-              className="flex flex-row gap-4 items-start w-auto md:w-auto bg-white p-4 rounded-2xl shadow-sm min-w-88"
+              className="flex flex-row gap-4 items-start bg-white p-4 rounded-2xl shadow-sm w-full"
               onSubmit={handleSubmit(onCreatePost)}
             >
               <Avatar
@@ -199,7 +378,7 @@ export function CommunityDetails() {
                 title={user?.name ?? ""}
                 className="rounded-full bg-violet-300 w-16 h-16 flex-shrink-0"
               />
-              <div className="flex-1 flex flex-col items-end gap-2 w-full">
+              <div className="flex-1 flex flex-col items-end gap-2 w-full ">
                 <Controller
                   render={({ field }) => (
                     <textarea
@@ -224,12 +403,12 @@ export function CommunityDetails() {
                 <CustomButton
                   name="postar"
                   loading={false}
-                  className="w-24 h-10"
+                  className="w-24 h-10 rounded-xl"
                 />
               </div>
             </form>
           )}
-          {userIsCommunityMember || communityVisibility === CommunityVisibility.PUBLIC && (
+          {userIsCommunityMember && (
             <div className="flex flex-col justify-center gap-4 w-full">
               {posts?.map((post) => (
                 <PostComponent
@@ -246,6 +425,8 @@ export function CommunityDetails() {
                   communityId={communityId ?? ""}
                   onCreateReaction={onCreateReaction}
                   fetchReactions={fetchPostReactions}
+                  handleDeletePost={handleDeletePost}
+                  handleDeleteComment={handleDeleteComment}
                 />
               ))}
             </div>

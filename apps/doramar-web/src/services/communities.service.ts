@@ -1,4 +1,3 @@
-import { AuthService } from "./auth.service"
 import type {
   Comment,
   Community,
@@ -8,9 +7,7 @@ import type {
   ReactionTargetType,
   ReactionType,
 } from "@/types"
-import { AxiosWrapper } from "@/utils/client"
-
-const apiClient = new AxiosWrapper()
+import { apiClient } from "@/utils/client"
 
 export const communitiesService = {
   async getAllCommunities(): Promise<Community[]> {
@@ -89,5 +86,45 @@ export const communitiesService = {
     return await apiClient.post(`/communities/${communityId}/members`, {
       userId,
     })
+  },
+  async uploadCommunityProfilePicture({
+    communityId,
+    formData,
+  }: {
+    formData: FormData
+    communityId: string
+  }): Promise<Community> {
+    return await apiClient.patch(`/communities/${communityId}/avatar`, formData)
+  },
+  async uploadCommunityCoverPicture({
+    communityId,
+    formData,
+  }: {
+    formData: FormData
+    communityId: string
+  }): Promise<Community> {
+    return await apiClient.patch(`/communities/${communityId}/cover`, formData)
+  },
+
+  async deleteCommunity(communityId: string): Promise<void> {
+    return await apiClient.delete(`/communities/${communityId}`)
+  },
+
+  async deletePost(postId: string, communityId: string): Promise<void> {
+    return await apiClient.delete(`/communities/${communityId}/post/${postId}`)
+  },
+
+  async deleteComment({
+    commentId,
+    communityId,
+    postId,
+  }: {
+    commentId: string
+    communityId: string
+    postId: string
+  }): Promise<void> {
+    return await apiClient.delete(
+      `/communities/${communityId}/post/${postId}/comments/${commentId}`,
+    )
   },
 }

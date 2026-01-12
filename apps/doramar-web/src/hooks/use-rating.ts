@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react"
 import { useUser } from "./use-user"
-import { ratingService } from "@/services/rating.service"
+import { ratingService } from "@/services/ratings.service"
 import type { RatingWithTvShow } from "@/types"
 import { toast } from "@/components/toast"
 
@@ -34,7 +34,7 @@ export function useRating() {
         console.error(`Erro ao ao avaliação: ${error}`)
       }
     },
-    [userId]
+    [userId],
   )
 
   const getRatingsByUserId = async (userId: string) => {

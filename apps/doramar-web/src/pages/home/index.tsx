@@ -29,11 +29,13 @@ export function HomePage() {
     tvShowsByPage,
     fetchTvShowsByPage,
     isLoadingTvShowsByPage,
+    markTvShowAsFavorite,
+    favoriteTvShows
   } = useTvShow()
   const { lists, addTvShowToList, createList } = useList()
-  const { user, markTvShowAsFavorite } = useUser()
+  const { user } = useUser()
   const { ratings, createRating } = useRating()
-  const { markActorAsFavorite } = useActor()
+  const { markActorAsFavorite, favoriteActors } = useActor()
   const { genres } = useGenres()
 
   const [showCreateListModal, setShowCreateListModal] = useState(false)
@@ -51,8 +53,7 @@ export function HomePage() {
     setCurrentPage(tvShowsByPage?.page ?? 1)
   }, [tvShowsByPage])
 
-  const favoriteTvShows = user?.favoriteTvShow
-
+ 
   const getStatusColor = useCallback(
     (watchedTvShows: WatchedTvShow[], tvShowId: string) => {
       const status = watchedTvShows.find(
@@ -238,7 +239,7 @@ export function HomePage() {
         onClose={() => setShowCastModal(false)}
         actors={selectedTvShow?.actors ?? []}
         onClick={handleMakeActorFavorite}
-        favoriteActors={user?.favoriteActors ?? []}
+        favoriteActors={favoriteActors ?? []}
       />
 
       <CreateListModal

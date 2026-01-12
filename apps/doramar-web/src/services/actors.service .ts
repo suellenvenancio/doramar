@@ -1,7 +1,5 @@
 import type { Actor } from "@/types"
-import { AxiosWrapper } from "@/utils/client"
-
-const apiClient = new AxiosWrapper()
+import { apiClient } from "@/utils/client"
 
 export const actorService = {
   async makeActorFavorite(userId: string, actorId: string): Promise<Actor> {
@@ -9,5 +7,8 @@ export const actorService = {
       userId,
       actorId,
     })
+  },
+  async findFavoriteActorsByUserId(userId: string): Promise<Actor[]> {
+    return await apiClient.get(`/actors/favorite/user/${userId}`)
   },
 }

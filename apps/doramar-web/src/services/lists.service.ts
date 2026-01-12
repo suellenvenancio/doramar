@@ -1,7 +1,5 @@
 import type { List, ListWithTvShows, TvShow } from "@/types"
-import { AxiosWrapper } from "@/utils/client"
-
-const apiClient = new AxiosWrapper()
+import { apiClient } from "@/utils/client"
 
 export const listService = {
   async getListsByUserId(userId: string): Promise<List[]> {
@@ -11,7 +9,7 @@ export const listService = {
   async addTvShowToList(
     listId: string,
     tvShowId: string,
-    userId: string
+    userId: string,
   ): Promise<ListWithTvShows> {
     return await apiClient.post(`/lists/${listId}/tvShow/${tvShowId}`, {
       userId,
@@ -36,7 +34,7 @@ export const listService = {
     userId: string
   }): Promise<void> {
     return await apiClient.delete(
-      `/lists/${listId}/tvShow/${tvShowId}/user/${userId}`
+      `/lists/${listId}/tvShow/${tvShowId}/user/${userId}`,
     )
   },
 

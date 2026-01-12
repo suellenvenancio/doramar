@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react"
-import { listService } from "@/services/list.service"
+import { listService } from "@/services/lists.service"
 import type { List, ListWithTvShows, TvShow } from "@/types"
 import { useUser } from "./use-user"
 import { toast } from "@/components/toast"
@@ -32,7 +32,7 @@ export function useList() {
         })
         .catch(() => toast(`Erro ao adicionar ${tvShow.title} à lista!`))
     },
-    [userId]
+    [userId],
   )
 
   const createList = useCallback(
@@ -48,7 +48,7 @@ export function useList() {
         })
         .catch(() => toast("Erro ao cria lista!"))
     },
-    [userId]
+    [userId],
   )
 
   const deleteList = useCallback(async (listId: string) => {
@@ -112,8 +112,8 @@ export function useList() {
 
       setLists((prevLists) =>
         prevLists.map((list) =>
-          list.id === updatedList.id ? updatedList : list
-        )
+          list.id === updatedList.id ? updatedList : list,
+        ),
       )
     } catch (error) {
       console.error(`Erro ao atualizar a ordem da lista: ${error}`)

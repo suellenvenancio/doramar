@@ -6,11 +6,12 @@ import { Layout } from "@/components/layout"
 import { SessionTitle } from "@/components/sessonTitle"
 import { toast } from "@/components/toast"
 import { WatchedTvShowComponent } from "@/components/watchedTvshow"
+import { useActor } from "@/hooks/use-actor"
 import { useList } from "@/hooks/use-list"
 import { useRating } from "@/hooks/use-rating"
 import { useTvShow } from "@/hooks/use-tv-shows"
 import { useUser } from "@/hooks/use-user"
-import { type List, type Rating, type User, type WatchedTvShow } from "@/types"
+import { Actor, TvShow, type List, type Rating, type User, type WatchedTvShow } from "@/types"
 import { mergeCn } from "@/utils/cn"
 import { useState, useRef, type ChangeEvent, useEffect } from "react"
 import { useParams } from "react-router-dom"
@@ -20,11 +21,14 @@ export function ProfilePage() {
   const [watchedTvShows, setWatchedTvShows] = useState<WatchedTvShow[]>([])
   const [lists, setLists] = useState<List[]>([])
   const [ratings, setRatings] = useState<Rating[]>([])
-
+  const [favoriteTvShows, setFavoriteTvShows] = useState<TvShow | undefined>()
+  const [favoriteActors, setFavoriteActors] = useState<Actor[]>([])
+  
   const { findUserById } = useUser()
-  const  {getWatchedTvShowsByUserId } = useTvShow()
+  const { getWatchedTvShowsByUserId, findFavoriteTvShowByUserId } = useTvShow()
   const { getRatingsByUserId, createRating } = useRating()
   const { getListsByUserId } = useList() 
+  const {  findFavoriteActorsByUserId } = useActor()
   const { userId } = useParams()
   
   useEffect(() => {
@@ -38,6 +42,10 @@ export function ProfilePage() {
     getRatingsByUserId(userId).then((fetchedRatings) =>
       setRatings(fetchedRatings ?? [])
     )
+    findFavoriteTvShowByUserId(userId).then((favTvShow) =>
+      setFavoriteTvShows(favTvShow || undefined)
+    )
+    findFavoriteActorsByUserId(userId).then((favActors) => setFavoriteActors(favActors))
   }, [userId])
 
    return (
@@ -60,9 +68,9 @@ export function ProfilePage() {
               icon={<HeartIcon className="text-pink-600" />}
             />
             <FavoriteDrama
-              poster={user?.favoriteTvShow?.poster}
-              title={user?.favoriteTvShow?.title ?? ""}
-              synopsis={user?.favoriteTvShow?.synopsis ?? ""}
+              poster={favoriteTvShows?.poster}
+              title={favoriteTvShows?.title ?? ""}
+              synopsis={favoriteTvShows?.synopsis ?? ""}
             />
           </div>
 
@@ -78,8 +86,8 @@ export function ProfilePage() {
               }
             />
             <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-5 gap-4">
-              {user?.favoriteActors?.length ? (
-                user.favoriteActors.map((actor) => (
+              {favoriteActors?.length ? (
+                favoriteActors.map((actor) => (
                   <div
                     className="flex flex-col items-center w-20"
                     key={actor.id ?? actor.name}

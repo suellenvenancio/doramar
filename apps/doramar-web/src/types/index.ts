@@ -22,8 +22,6 @@ export interface User {
   email: string
   profilePicture: string
   username: string
-  favoriteActors: Actor[]
-  favoriteTvShow?: FavoriteTvShow
   createdAt: Date
   updatedAt: Date
 }
@@ -173,6 +171,7 @@ export interface Community {
   rules?: string
   createdAt: Date
   id: string
+  coverUrl?: string
 }
 
 export interface Member {

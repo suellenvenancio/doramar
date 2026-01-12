@@ -6,6 +6,7 @@ import { Layout } from "@/components/layout"
 import { SessionTitle } from "@/components/sessonTitle"
 import { toast } from "@/components/toast"
 import { WatchedTvShowComponent } from "@/components/watchedTvshow"
+import { useActor } from "@/hooks/use-actor"
 import { useList } from "@/hooks/use-list"
 import { useRating } from "@/hooks/use-rating"
 import { useTvShow } from "@/hooks/use-tv-shows"
@@ -14,9 +15,10 @@ import { useState, useRef, type ChangeEvent } from "react"
 
 export function MyProfilePage() {
   const { user, uploadProfilePicture } = useUser()
-  const { watchedTvShows } = useTvShow()
+  const { watchedTvShows, favoriteTvShows } = useTvShow()
   const { ratings, createRating } = useRating()
   const { lists } = useList() 
+  const { favoriteActors } = useActor()
 
   return (
     <Layout page="Profile">
@@ -38,9 +40,9 @@ export function MyProfilePage() {
               icon={<HeartIcon className="text-pink-600" />}
             />
             <FavoriteDrama
-              poster={user?.favoriteTvShow?.poster}
-              title={user?.favoriteTvShow?.title ?? ""}
-              synopsis={user?.favoriteTvShow?.synopsis ?? ""}
+              poster={favoriteTvShows?.poster}
+              title={favoriteTvShows?.title ?? ""}
+              synopsis={favoriteTvShows?.synopsis ?? ""}
             />
           </div>
 
@@ -56,8 +58,8 @@ export function MyProfilePage() {
               }
             />
             <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-5 gap-4">
-              {user?.favoriteActors?.length ? (
-                user.favoriteActors.map((actor) => (
+              { favoriteActors?.length ? (
+                favoriteActors.map((actor) => (
                   <div
                     className="flex flex-col items-center w-20"
                     key={actor.id ?? actor.name}

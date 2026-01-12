@@ -1,15 +1,17 @@
 import type { ResponseType } from "@/types"
+import { Auth } from "@firebase/auth"
 import axios, {
   type AxiosInstance,
   type AxiosRequestConfig,
   type AxiosResponse,
   type InternalAxiosRequestConfig,
 } from "axios"
+import { auth } from "@/firebase.config"
 
 export class AxiosWrapper {
   private instance: AxiosInstance
 
-  constructor() {
+  constructor(firebaseAuth: Auth) {
     this.instance = axios.create({
       baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000",
       withCredentials: true,
@@ -19,10 +21,14 @@ export class AxiosWrapper {
     })
 
     this.instance.interceptors.request.use(
-      (config: InternalAxiosRequestConfig) => {
-        const token = localStorage.getItem("appToken")
-        if (token && config.headers) {
-          config.headers.Authorization = `Bearer ${token}`
+      async (config: InternalAxiosRequestConfig) => {
+        const user = firebaseAuth.currentUser
+
+        if (user) {
+          const token = await user.getIdToken()
+          if (config.headers) {
+            config.headers.Authorization = `Bearer ${token}`
+          }
         }
 
         if (config.data instanceof FormData) {
@@ -32,6 +38,25 @@ export class AxiosWrapper {
         return config
       },
       (error) => Promise.reject(error),
+    )
+
+    this.instance.interceptors.response.use(
+      (response) => response,
+      async (error) => {
+        const originalRequest = error.config
+
+        if (error.response?.status === 403 && !originalRequest._retry) {
+          originalRequest._retry = true
+          const user = firebaseAuth.currentUser
+
+          if (user) {
+            const newToken = await user.getIdToken(true)
+            originalRequest.headers.Authorization = `Bearer ${newToken}`
+            return this.instance(originalRequest)
+          }
+        }
+        return Promise.reject(error)
+      },
     )
   }
 
@@ -83,4 +108,4 @@ export class AxiosWrapper {
   }
 }
 
-export const apiClient = new AxiosWrapper()
+export const apiClient = new AxiosWrapper(auth)

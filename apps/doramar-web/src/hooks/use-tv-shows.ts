@@ -12,6 +12,7 @@ export function useTvShow() {
   >([])
   const [watchedTvShows, setWatchedTvShows] = useState<WatchedTvShow[]>([])
   const [isLoadingTvShowsByPage, setIsLoadingTvShowsByPage] = useState(false)
+  const [favoriteTvShows, setFavoriteTvShows] = useState<TvShow>()
   const { user } = useUser()
 
   const userId = user?.id
@@ -20,15 +21,21 @@ export function useTvShow() {
     const fetchTvShowAndWatchedStatus = async () => {
       try {
         setIsLoadingTvShowsByPage(true)
-        const [fetchedTvShows, fetchedWatchedStatus, fetchTvShowsByPage] =
-          await Promise.all([
-            tvShowService.getAllTvShows(),
-            tvShowService.getWatchedStatus(),
-            tvShowService.getTvShowsByPage(1, 20),
-          ])
+        const [
+          fetchedTvShows,
+          fetchedWatchedStatus,
+          fetchTvShowsByPage,
+          fetcheFavTvShow,
+        ] = await Promise.all([
+          tvShowService.getAllTvShows(),
+          tvShowService.getWatchedStatus(),
+          tvShowService.getTvShowsByPage(1, 20),
+          tvShowService.findFavoriteTvShowByUserId(userId || ""),
+        ])
         setTvShows(fetchedTvShows)
         setWatchedStatus(fetchedWatchedStatus)
         setTvShowByPage(fetchTvShowsByPage)
+        setFavoriteTvShows(fetcheFavTvShow)
       } catch (e) {
         console.error("Erro ao buscar doramas e status assistido!", e)
       } finally {
@@ -93,6 +100,38 @@ export function useTvShow() {
     }
   }
 
+  const findFavoriteTvShowByUserId = useCallback(
+    async (userId: string) => {
+      try {
+        return await tvShowService.findFavoriteTvShowByUserId(userId)
+      } catch (e) {
+        console.error(`Erro ao buscar doramas favoritos: ${e}`)
+        return null
+      }
+    },
+    [userId],
+  )
+
+  const markTvShowAsFavorite = useCallback(async (tvShow: TvShow) => {
+    try {
+      if (!user) return
+
+      await tvShowService
+        .addTVShowToFavorites(user.id, tvShow.id)
+        .then((updatedFavTvShow) => {
+          if (updatedFavTvShow) {
+            setFavoriteTvShows(updatedFavTvShow)
+          }
+          toast(
+            `${tvShow.title} ${updatedFavTvShow ? "adicionado" : "removido"} como favorito!`,
+          )
+        })
+        .catch(() => toast(`Erro ao adicionar ${tvShow.title} como favorito`))
+    } catch (error) {
+      console.error("Erro ao marcar dorama como favorito", error)
+    }
+  }, [])
+
   return {
     tvShows,
     watchedStatus,
@@ -102,5 +141,8 @@ export function useTvShow() {
     fetchTvShowsByPage,
     getWatchedTvShowsByUserId,
     isLoadingTvShowsByPage,
+    findFavoriteTvShowByUserId,
+    favoriteTvShows,
+    markTvShowAsFavorite,
   }
 }

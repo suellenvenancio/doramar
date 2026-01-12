@@ -3,9 +3,7 @@ import {
   type TvShowWithPagination,
   type WatchedTvShow,
 } from "@/types"
-import { AxiosWrapper } from "@/utils/client"
-
-const apiClient = new AxiosWrapper()
+import { apiClient } from "@/utils/client"
 
 export const tvShowService = {
   async getAllTvShows(): Promise<TvShow[]> {
@@ -19,7 +17,7 @@ export const tvShowService = {
   async markTvShowAsWatched(
     userId: string,
     tvShowId: string,
-    watchedStatusId: string
+    watchedStatusId: string,
   ): Promise<WatchedTvShow> {
     return await apiClient.post(`/tvShows/watched`, {
       userId,
@@ -34,8 +32,21 @@ export const tvShowService = {
 
   async getTvShowsByPage(
     page: number,
-    limit?: number
+    limit?: number,
   ): Promise<TvShowWithPagination> {
     return await apiClient.get(`/tvShows?page=${page}&limit=${limit}`)
+  },
+
+  async findFavoriteTvShowByUserId(userId: string): Promise<TvShow> {
+    return await apiClient.get(`/tvShows/favorite/user/${userId}`)
+  },
+
+  async addTVShowToFavorites(
+    userId: string,
+    tvShowId: string,
+  ): Promise<TvShow> {
+    return await apiClient.post(`/tvShows/user/${userId}/favoriteTvShow`, {
+      tvShowId,
+    })
   },
 }

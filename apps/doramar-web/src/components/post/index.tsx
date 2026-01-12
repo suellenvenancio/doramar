@@ -11,7 +11,9 @@ import { LikeIcon } from "../icons/like"
 import { HeartIcon } from "../icons/heart"
 import { LaughtIcon } from "../icons/laught"
 import { AngryIcon } from "../icons/angry"
-import { useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom" 
+import { TrashIcon } from "../icons/trash"
+import { ConfirmationModal } from "../modal/confirmationModal"
 
 interface PostProps {
   userId: string
@@ -36,6 +38,8 @@ interface PostProps {
     type: ReactionType
     }
   ) => Promise<Reaction | undefined | null>
+  handleDeletePost: (postId: string) => Promise<void>
+  handleDeleteComment: (commentId: string, postId: string) => Promise<void>
 }
 
 const createComment = z.object({
@@ -56,7 +60,9 @@ export function PostComponent({
   communityId,
   fetchReactions,
   onCreateReaction,
-  authorId
+  authorId,
+  handleDeletePost,
+  handleDeleteComment,
 }: PostProps) {
   const [showReactions, setShowReactions] = useState(false)
   const [currentReaction, setCurrentReaction] = useState({
@@ -64,77 +70,87 @@ export function PostComponent({
     emoji: <LikeIcon />,
     color: "black",
   })
-  const [showComments, setShowComments]  = useState(false)
+  const [showComments, setShowComments] = useState(false)
   const [allComments, setAllComments] = useState<Comment[]>([])
   const [allReactions, setAllReactions] = useState<Reaction[]>([])
+  const [showDeletePostModal, setShowDeletePostModal] = useState(false)
+  const [showDeleteCommentModal, setShowDeleteCommentModal] = useState(false)
 
   const { reset, control, handleSubmit, setError } = useForm<FormData>({})
 
   const navigate = useNavigate()
-  
-    const reactions = [
-      { type: "LIKE", emoji: <LikeIcon />, label: "Curtir", color: "blue-500" },
-      { type: "LOVE", emoji: <HeartIcon />, label: "Amei", color: "red-500" },
-      {
-        type: "LAUGH",
-        emoji: <LaughtIcon />,
-        label: "Gargalhei",
-        color: "yellow-500",
-      },
-      { type: "ANGRY", emoji: <AngryIcon />, label: "Grrr", color: "red-500" },
-    ]
+
+  const reactions = [
+    { type: "LIKE", emoji: <LikeIcon />, label: "Curtir", color: "blue-500" },
+    { type: "LOVE", emoji: <HeartIcon />, label: "Amei", color: "red-500" },
+    {
+      type: "LAUGH",
+      emoji: <LaughtIcon />,
+      label: "Gargalhei",
+      color: "yellow-500",
+    },
+    { type: "ANGRY", emoji: <AngryIcon />, label: "Grrr", color: "red-500" },
+  ]
 
   useEffect(() => {
-    fetchPostComments(postId).then((comments) =>
-      setAllComments(comments ?? [])
-    )
+    fetchPostComments(postId).then((comments) => setAllComments(comments ?? []))
 
     fetchReactions(postId).then((newReactions) => {
-      setAllReactions(newReactions ?? []) 
-        const userPostReaction = newReactions?.find((r) => r.userId === userId)
- 
+      setAllReactions(newReactions ?? [])
+      const userPostReaction = newReactions?.find((r) => r.userId === userId)
+
       if (userPostReaction) {
-          const reactionDetails = reactions.find(
-            (r) => r.type === userPostReaction?.type
-          )
+        const reactionDetails = reactions.find(
+          (r) => r.type === userPostReaction?.type,
+        )
 
-          if (reactionDetails) setCurrentReaction(reactionDetails)
+        if (reactionDetails) setCurrentReaction(reactionDetails)
       }
-    })  
+    })
   }, [postId])
-
-
 
   const handleAddComment = useCallback(
     async ({ content }: FormData) => {
       await onAddComment(postId, communityId, content).then(
-        (newComment) => newComment &&  setAllComments((prev) => [...prev, newComment])
+        (newComment) =>
+          newComment && setAllComments((prev) => [...prev, newComment]),
       )
     },
-    [postId]
+    [postId],
   )
 
-  const handleReacts = async (react: { type: string, emoji:ReactElement, label: string, color:string }) => {
-    setCurrentReaction({ type: react.type, emoji: react.emoji, color: react.color })
+  const handleReacts = async (react: {
+    type: string
+    emoji: ReactElement
+    label: string
+    color: string
+  }) => {
+    setCurrentReaction({
+      type: react.type,
+      emoji: react.emoji,
+      color: react.color,
+    })
 
     onCreateReaction({
       postId,
       type: react.type as ReactionType,
       targetType: ReactionTargetType.POST,
     }).then((newReaction) =>
-      newReaction ? setAllReactions((prev) => [...prev, newReaction]) : setCurrentReaction({
-      type: "LIKE",
-      emoji: <LikeIcon />,
-      color: "black",
-    })
+      newReaction
+        ? setAllReactions((prev) => [...prev, newReaction])
+        : setCurrentReaction({
+            type: "LIKE",
+            emoji: <LikeIcon />,
+            color: "black",
+          }),
     )
 
     setShowReactions(false)
   }
 
   return (
-    <div className="max-w-dvw min-w-88 w-auto bg-white rounded-[2.5rem] shadow-sm overflow-hidden border border-pink-100">
-      <div className="p-6 flex items-center gap-4">
+    <div className="max-w-dvw min-w-88 w-auto bg-white rounded-[2.5rem] shadow-sm overflow-hidden border border-pink-100 relative">
+      <div className="p-6 flex items-start gap-4">
         <div className="w-12 h-12 rounded-full bg-pink-100 border-2 border-white shadow-sm overflow-hidden">
           <Avatar
             title={postId}
@@ -142,7 +158,7 @@ export function PostComponent({
             className="rounded-full"
           />
         </div>
-        <div>
+        <div className="flex-1">
           <h3
             className="font-bold text-gray-800 hover:underline"
             onClick={() => navigate(`/profile/${authorId}`)}
@@ -151,6 +167,21 @@ export function PostComponent({
           </h3>
           <span className="text-xs text-gray-400">{postedAt}</span>
         </div>
+        {userId === authorId && (
+          <div>
+            <IconButton
+              icon={<TrashIcon className="text-pink-600" />}
+              onClick={() => setShowDeletePostModal(!showDeletePostModal)}
+            />
+            <ConfirmationModal
+              isOpen={showDeletePostModal}
+              onClose={() => setShowDeletePostModal(false)}
+              onClick={handleDeletePost}
+              id={postId}
+              question={"Tem certeza que deseja deletar este post?"}
+            />
+          </div>
+        )}
       </div>
 
       <div className="px-6 pb-6">
@@ -203,12 +234,41 @@ export function PostComponent({
               <div key={c.id} className="flex gap-3 items-start">
                 <div className="w-8 h-8 rounded-full bg-pink-200 shrink-0 border border-white" />
                 <div className="bg-white rounded-2xl rounded-tl-none p-3 shadow-sm border border-pink-50 max-w-[85%]">
-                  <p
-                    className="text-[10px] font-bold text-[#D63384] uppercase tracking-wider"
-                    onClick={() => navigate(`/profile/${authorId}`)}
-                  >
-                    {c.author?.name}
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <p
+                      className="text-[10px] font-bold text-[#D63384] uppercase tracking-wider"
+                      onClick={() => navigate(`/profile/${authorId}`)}
+                    >
+                      {c.author?.name}
+                    </p>
+                    {c.author?.id === userId && (
+                      <div>
+                        <IconButton
+                          icon={<TrashIcon className="text-pink-600 h-3 w-3" />}
+                          onClick={() =>
+                            setShowDeleteCommentModal(!showDeleteCommentModal)
+                          }
+                        />
+                        <ConfirmationModal
+                          isOpen={showDeleteCommentModal}
+                          onClose={() => setShowDeleteCommentModal(false)}
+                          onClick={async () => {
+                            await handleDeleteComment(c.id, postId).then(() => {
+                                setAllComments((prev) =>
+                                  prev.filter((comment) => comment.id !== c.id),
+                                )
+                            })
+                          
+                          }}
+                          id={c.id}
+                          question={
+                            "Tem certeza que deseja deletar este comentário?"
+                          }
+                        />
+                      </div>
+                    )}
+                  </div>
+
                   <p className="text-sm text-gray-600">{c.content}</p>
                 </div>
               </div>

@@ -47,7 +47,7 @@ export function PopUpMenu({
           <p
             key={item.id}
             className={mergeCn(
-              "block w-full text-left px-3 py-2 bg-gray-50 hover:text-green-600 cursor-pointer",
+              "block w-full text-left px-3 py-2 bg-gray-50 cursor-pointer",
               {
                 "md:text-lg": type === "",
               },
