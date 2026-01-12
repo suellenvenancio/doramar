@@ -18,7 +18,10 @@ dotenv.config()
 initializeFirebase()
 const app = express()
 
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",")
+
 const corsOptions: cors.CorsOptions = {
+  origin: allowedOrigins,
   credentials: true,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
 }
@@ -36,7 +39,6 @@ app.use(`/ratings`, ratingsRoutes())
 app.use(`/actors`, actorsRoutes())
 app.use(`/genres`, genresRoutes())
 app.use(`/communities`, communitiesRoutes())
-
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error(err.stack)
 
