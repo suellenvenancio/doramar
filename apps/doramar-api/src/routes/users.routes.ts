@@ -1,15 +1,13 @@
 import express from "express"
 
 import {
-  addTVShowToFavorites,
   createUser,
   deleteUserById,
   findUserByEmail,
   findUserById,
-  findUserByUsername,
   updateUser,
   uploadProfilePicture,
-} from "../controller/user.controller"
+} from "../controller/users.controller"
 import { authenticate } from "../middleware"
 import { validateData } from "../middleware/validation"
 import { userSchema } from "../schemas/user.schema"
@@ -19,7 +17,7 @@ export function userRoutes() {
   const router = express.Router()
 
   router.get("/:userId", authenticate, findUserById)
-  router.get("/", findUserByEmail)
+  router.get("/", authenticate, findUserByEmail)
   router.post("/", validateData(userSchema), createUser)
   router.patch("/:userId", authenticate, updateUser)
   router.delete("/:userId", authenticate, deleteUserById)
@@ -29,7 +27,6 @@ export function userRoutes() {
     authenticate,
     uploadProfilePicture,
   )
-  router.post("/:userId/favoriteTvShow", authenticate, addTVShowToFavorites)
 
   return router
 }

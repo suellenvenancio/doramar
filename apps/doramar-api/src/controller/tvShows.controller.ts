@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express"
-import tvShowsServices from "../services/tvshows.service"
 import { sendResponse } from "../utils/sendResponse"
 import { AppError } from "../utils/errors"
+import tvShowsService from "../services/tvShows.service"
 
 export async function getTvShowsByPage(
   req: Request,
@@ -12,7 +12,7 @@ export async function getTvShowsByPage(
     const page = parseInt(req.query.page as string) || 1
     const limit = parseInt(req.query.limit as string)
 
-    const allTvShows = await tvShowsServices.getTvShowsByPage(page, limit)
+    const allTvShows = await tvShowsService.getTvShowsByPage(page, limit)
 
     return sendResponse(res, 200, "TV shows retrieved successfully!", {
       ...allTvShows.meta,
@@ -20,25 +20,11 @@ export async function getTvShowsByPage(
     })
   } catch (error) {
     console.error("Error fetching TV shows:", error)
-    return next(sendResponse(res, 500, "Internal Server Error"))
-  }
-}
-
-export async function createTvShow(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) {
-  try {
-    const tvShowData = req.body
-    const newTvShow = await tvShowsServices.createTvShow(tvShowData)
-    return sendResponse(res, 201, "TV show created successfully!", newTvShow)
-  } catch (error: unknown) {
     return next(
       sendResponse(
         res,
         (error as AppError).statusCode || 500,
-        (error as AppError).message || "Internal Server Error",
+        (error as AppError).message || "Error fetching Tv shows!",
       ),
     )
   }
@@ -52,7 +38,7 @@ export async function findWatchedTvShowsByUserId(
   const { userId } = req.params
   try {
     const watchedTvShows =
-      await tvShowsServices.findWatchedTvShowsByUserId(userId)
+      await tvShowsService.findWatchedTvShowsByUserId(userId)
     return sendResponse(
       res,
       200,
@@ -60,7 +46,13 @@ export async function findWatchedTvShowsByUserId(
       watchedTvShows,
     )
   } catch (error) {
-    return next(sendResponse(res, 500, "Error fetching watched TV shows!"))
+    return next(
+      sendResponse(
+        res,
+        (error as AppError).statusCode || 500,
+        (error as AppError).message || "Error fetching watched TV shows!",
+      ),
+    )
   }
 }
 
@@ -72,11 +64,12 @@ export async function markTvShowAsWatched(
   try {
     const { userId, tvShowId, watchedStatusId } = req.body
 
-    const watchedTvShow = await tvShowsServices.markTvShowAsWatched(
+    const watchedTvShow = await tvShowsService.markTvShowAsWatched(
       userId,
       tvShowId,
       watchedStatusId,
     )
+
     return sendResponse(
       res,
       200,
@@ -84,7 +77,13 @@ export async function markTvShowAsWatched(
       watchedTvShow,
     )
   } catch (error) {
-    return next(sendResponse(res, 500, "Error marking TV show as watched!"))
+    return next(
+      sendResponse(
+        res,
+        (error as AppError).statusCode || 500,
+        (error as AppError).message || "Error marking TV show as watched!",
+      ),
+    )
   }
 }
 
@@ -94,7 +93,7 @@ export async function getWatchedStatus(
   next: NextFunction,
 ) {
   try {
-    const watchedStatus = await tvShowsServices.watchedStatus()
+    const watchedStatus = await tvShowsService.watchedStatus()
     return sendResponse(
       res,
       200,
@@ -102,7 +101,13 @@ export async function getWatchedStatus(
       watchedStatus,
     )
   } catch (error) {
-    return next(sendResponse(res, 500, "Error fetching watched statuses!"))
+    return next(
+      sendResponse(
+        res,
+        (error as AppError).statusCode || 500,
+        (error as AppError).message || "Error fetching watched status!",
+      ),
+    )
   }
 }
 
@@ -112,7 +117,7 @@ export async function getAllTvShows(
   next: NextFunction,
 ) {
   try {
-    const allTvShows = await tvShowsServices.getAllTvShows()
+    const allTvShows = await tvShowsService.getAllTvShows()
     return sendResponse(
       res,
       200,
@@ -121,6 +126,65 @@ export async function getAllTvShows(
     )
   } catch (error) {
     console.error("Error fetching TV shows:", error)
-    return next(sendResponse(res, 500, "Internal Server Error"))
+    return next(
+      sendResponse(
+        res,
+        (error as AppError).statusCode || 500,
+        (error as AppError).message || "Error fetching tv shows!",
+      ),
+    )
+  }
+}
+
+export async function findFavoriteTvShowByUserId(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const { userId } = req.params
+    const favoriteTvShow = await tvShowsService.findFavoriteTvShowByUser(userId)
+    return sendResponse(
+      res,
+      200,
+      "Favorite TV show retrieved successfully!",
+      favoriteTvShow,
+    )
+  } catch (error) {
+    return next(
+      sendResponse(
+        res,
+        (error as AppError).statusCode || 500,
+        (error as AppError).message || "Error fetching user favorite tv show!",
+      ),
+    )
+  }
+}
+
+export async function addTVShowToFavorites(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  const { userId } = req.params
+  const { tvShowId } = req.body
+
+  try {
+    const user = await tvShowsService.addTVShowToFavorites(userId, tvShowId)
+
+    return sendResponse(
+      res,
+      200,
+      "TV show added to favorites successfully",
+      user,
+    )
+  } catch (error) {
+    return next(
+      sendResponse(
+        res,
+        (error as AppError).statusCode || 500,
+        (error as AppError).message || "Error adding TV show to favorites!",
+      ),
+    )
   }
 }

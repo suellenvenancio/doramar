@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express"
 import { sendResponse } from "../utils/sendResponse"
 import communitiesService from "../services/communities.service"
+import { AppError } from "@/utils/errors"
 
 export async function getAllCommunities(
   req: Request,
@@ -16,7 +17,13 @@ export async function getAllCommunities(
       communities,
     )
   } catch (error) {
-    return next(sendResponse(res, 500, "Error fetching communities!"))
+    return next(
+      sendResponse(
+        res,
+        (error as AppError).statusCode || 500,
+        (error as AppError).message || "Error fetching communities!",
+      ),
+    )
   }
 }
 
@@ -41,7 +48,13 @@ export async function createCommunity(
     )
   } catch (error) {
     console.log(error)
-    return next(sendResponse(res, 500, "Error on create communities!"))
+    return next(
+      sendResponse(
+        res,
+        (error as AppError).statusCode || 500,
+        (error as AppError).message || "Error on create communities!",
+      ),
+    )
   }
 }
 
@@ -61,7 +74,13 @@ export async function createPost(
     return sendResponse(res, 200, "Post created successfully!", post)
   } catch (error) {
     console.log(error)
-    return next(sendResponse(res, 500, "Error on create post!"))
+    return next(
+      sendResponse(
+        res,
+        (error as AppError).statusCode || 500,
+        (error as AppError).message || "Error on create post!",
+      ),
+    )
   }
 }
 
@@ -77,7 +96,13 @@ export async function getPostComments(
     return sendResponse(res, 200, "Post created successfully!", post)
   } catch (error) {
     console.log(error)
-    return next(sendResponse(res, 500, "Error on get comments!"))
+    return next(
+      sendResponse(
+        res,
+        (error as AppError).statusCode || 500,
+        (error as AppError).message || "Error on get comments!",
+      ),
+    )
   }
 }
 
@@ -93,7 +118,13 @@ export async function getPostsByCommunityId(
     return sendResponse(res, 200, "Post created successfully!", post)
   } catch (error) {
     console.log(error)
-    return next(sendResponse(res, 500, "Error on get posts!"))
+    return next(
+      sendResponse(
+        res,
+        (error as AppError).statusCode || 500,
+        (error as AppError).message || "Error on get posts!",
+      ),
+    )
   }
 }
 
@@ -115,7 +146,13 @@ export async function createComment(
     return sendResponse(res, 200, "Post created successfully!", post)
   } catch (error) {
     console.log(error)
-    return next(sendResponse(res, 500, "Error on create comment!"))
+    return next(
+      sendResponse(
+        res,
+        (error as AppError).statusCode || 500,
+        (error as AppError).message || "Error on create comment!",
+      ),
+    )
   }
 }
 
@@ -138,7 +175,13 @@ export async function createReaction(
     return sendResponse(res, 200, "Post created successfully!", reaction)
   } catch (error) {
     console.log(error)
-    return next(sendResponse(res, 500, "Error on create reaction!"))
+    return next(
+      sendResponse(
+        res,
+        (error as AppError).statusCode || 500,
+        (error as AppError).message || "Error on create reaction!",
+      ),
+    )
   }
 }
 
@@ -155,7 +198,13 @@ export async function getReactionsByPostId(
     return sendResponse(res, 200, "Post created successfully!", reactions)
   } catch (error) {
     console.log(error)
-    return next(sendResponse(res, 500, "Error on get reactions!"))
+    return next(
+      sendResponse(
+        res,
+        (error as AppError).statusCode || 500,
+        (error as AppError).message || "Error on get reactions!",
+      ),
+    )
   }
 }
 
@@ -178,6 +227,139 @@ export async function addMemberOnTheCommunity(
     return sendResponse(res, 200, "Member added successfully!", post)
   } catch (error) {
     console.log(error)
-    return next(sendResponse(res, 500, "Error on added a community member!"))
+    return next(
+      sendResponse(
+        res,
+        (error as AppError).statusCode || 500,
+        (error as AppError).message || "Member added successfully!",
+      ),
+    )
+  }
+}
+
+export async function uploadCommunityProfilePicture(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const file = req.file
+    if (!file) {
+      return sendResponse(res, 400, "No file uploaded!")
+    }
+    const { communityId } = req.params
+    const communityWithAvatar =
+      await communitiesService.uploadCommunityProfilePicture(communityId, file)
+    return sendResponse(
+      res,
+      200,
+      "Community profile picture uploaded successfully!",
+      communityWithAvatar,
+    )
+  } catch (error) {
+    return next(
+      sendResponse(
+        res,
+        (error as AppError).statusCode || 500,
+        (error as AppError).message ||
+          "Error on upload community profile picture!",
+      ),
+    )
+  }
+}
+
+export async function uploadCommunityCoverPicture(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const file = req.file
+    if (!file) {
+      return sendResponse(res, 400, "No file uploaded!")
+    }
+    const { communityId } = req.params
+    const communityWithAvatar =
+      await communitiesService.uploadCommunityCoverPicture(communityId, file)
+    return sendResponse(
+      res,
+      200,
+      "Community profile picture uploaded successfully!",
+      communityWithAvatar,
+    )
+  } catch (error) {
+    return next(
+      sendResponse(
+        res,
+        (error as AppError).statusCode || 500,
+        (error as AppError).message ||
+          "Error on upload community profile picture!",
+      ),
+    )
+  }
+}
+
+export async function deleteCommunity(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const { communityId } = req.params
+
+    await communitiesService.deleteCommunity(communityId)
+
+    return sendResponse(res, 200, "Community deleted successfully!")
+  } catch (error) {
+    return next(
+      sendResponse(
+        res,
+        (error as AppError).statusCode || 500,
+        (error as AppError).message || "Error on delete community!",
+      ),
+    )
+  }
+}
+
+export async function deletePost(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const { postId, communityId } = req.params
+    await communitiesService.deletePost(postId, communityId)
+
+    return sendResponse(res, 200, "Post deleted successfully!")
+  } catch (error) {
+    return next(
+      sendResponse(
+        res,
+        (error as AppError).statusCode || 500,
+        (error as AppError).message || "Error on delete post!",
+      ),
+    )
+  }
+}
+
+export async function deleteComment(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const { postId, communityId, commentId } = req.params
+
+    await communitiesService.deleteComment({ postId, communityId, commentId })
+
+    return sendResponse(res, 200, "Comment deleted successfully!")
+  } catch (error) {
+    return next(
+      sendResponse(
+        res,
+        (error as AppError).statusCode || 500,
+        (error as AppError).message || "Error on delete post!",
+      ),
+    )
   }
 }

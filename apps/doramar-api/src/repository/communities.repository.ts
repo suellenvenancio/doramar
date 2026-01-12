@@ -28,7 +28,7 @@ async function getAllCommunities() {
 }
 
 async function findCommunityById(id: string) {
-  return await prisma.communities.findUnique({
+  return await prisma.communities.findFirst({
     where: { id },
     include: {
       members: true,
@@ -161,6 +161,7 @@ async function findPostById(id: string) {
     include: {
       author: true,
       reactions: true,
+      comments: true,
     },
   })
 }
@@ -220,6 +221,82 @@ async function deleteReaction(id: string) {
   })
 }
 
+async function updateCommunityProfilePicture(
+  communityId: string,
+  profilePictureUrl: string,
+) {
+  return await prisma.communities.update({
+    where: {
+      id: communityId,
+    },
+    data: {
+      avatarUrl: profilePictureUrl,
+    },
+    include: {
+      members: {
+        include: {
+          user: true,
+        },
+      },
+      owner: true,
+    },
+  })
+}
+
+async function updateCommunityCoverPicture(
+  communityId: string,
+  coverPictureUrl: string,
+) {
+  return await prisma.communities.update({
+    where: {
+      id: communityId,
+    },
+    data: {
+      coverUrl: coverPictureUrl,
+    },
+    include: {
+      members: {
+        include: {
+          user: true,
+        },
+      },
+      owner: true,
+    },
+  })
+}
+
+async function deleteCommunityById(id: string) {
+  return await prisma.communities.delete({
+    where: {
+      id,
+    },
+  })
+}
+
+async function deletePostById(id: string) {
+  return await prisma.posts.delete({
+    where: {
+      id,
+    },
+  })
+}
+
+async function findCommentById(id: string) {
+  return await prisma.comment.findUnique({
+    where: {
+      id,
+    },
+  })
+}
+
+async function deleteCommentById(id: string) {
+  return await prisma.comment.delete({
+    where: {
+      id,
+    },
+  })
+}
+
 const communitiesRepository = {
   getAllCommunities,
   findCommunityById,
@@ -234,6 +311,12 @@ const communitiesRepository = {
   createReaction,
   updateReaction,
   deleteReaction,
+  updateCommunityProfilePicture,
+  updateCommunityCoverPicture,
+  deleteCommunityById,
+  deletePostById,
+  findCommentById,
+  deleteCommentById,
 }
 
 export default communitiesRepository

@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express"
 import { sendResponse } from "../utils/sendResponse"
 import actorsService from "../services/actors.service"
+import { AppError } from "../utils/errors"
 
 export async function getAllActors(
   req: Request,
@@ -9,9 +10,15 @@ export async function getAllActors(
 ) {
   try {
     const actors = await actorsService.getAllActors()
-    return sendResponse(res, 200, "Actors retrieved successfully", actors)
+    return sendResponse(res, 200, "Actors retrieved successfully!", actors)
   } catch (error) {
-    return next(sendResponse(res, 500, "Error fetching actors!"))
+    return next(
+      sendResponse(
+        res,
+        (error as AppError).statusCode || 500,
+        (error as AppError).message || "Error fetching actors!",
+      ),
+    )
   }
 }
 
@@ -27,11 +34,18 @@ export async function findFavoriteActorsByUserId(
     return sendResponse(
       res,
       200,
-      "Favorite actors retrieved successfully",
+      "Favorite actors retrieved successfully!",
       favoriteActors,
     )
   } catch (error) {
-    return next(sendResponse(res, 500, "Error fetching favorite actors!"))
+    return next(
+      sendResponse(
+        res,
+        (error as AppError).statusCode || 500,
+        (error as AppError).message ||
+          "Error fetching favorite actors by user id!",
+      ),
+    )
   }
 }
 
@@ -53,6 +67,12 @@ export async function addActorToFavorites(
       updatedFavorites,
     )
   } catch (error) {
-    return next(sendResponse(res, 500, "Error adding actor to favorites!"))
+    return next(
+      sendResponse(
+        res,
+        (error as AppError).statusCode || 500,
+        (error as AppError).message || "Error adding actor to favorites!",
+      ),
+    )
   }
 }

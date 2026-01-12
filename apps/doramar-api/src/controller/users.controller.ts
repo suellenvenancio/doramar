@@ -58,7 +58,7 @@ export async function findUserByEmail(
 ) {
   try {
     const { email } = req.query
-    console.log(email)
+
     const user = await userService.findUserByEmail(String(email))
 
     return sendResponse(res, 200, "User returned successfully", user)
@@ -144,27 +144,6 @@ export async function uploadProfilePicture(
   }
 }
 
-export async function addTVShowToFavorites(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) {
-  const { userId } = req.params
-  const { tvShowId } = req.body
-
-  try {
-    const user = await userService.addTVShowToFavorites(userId, tvShowId)
-
-    return sendResponse(
-      res,
-      200,
-      "TV show added to favorites successfully",
-      user,
-    )
-  } catch (error) {
-    return next(sendResponse(res, 500, "Error adding TV show to favorites!"))
-  }
-}
 
 export async function findUserByUsername(
   req: Request,

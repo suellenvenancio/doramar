@@ -7,11 +7,11 @@ import dotenv from "dotenv"
 import { actorsRoutes } from "./routes/actors.routes"
 import { ratingsRoutes } from "./routes/ratings.routes"
 import { listsRoutes } from "./routes/lists.routes"
-import { tvShowsRoutes } from "./routes/tvshows.routes"
+import { tvShowsRoutes } from "./routes/tvShows.routes"
 import { communitiesRoutes } from "./routes/communities.routes"
 import { initializeFirebase } from "./lib/firebase"
 import { genresRoutes } from "./routes/genres.routes"
-import { userRoutes } from "./routes/user.routes"
+import { userRoutes } from "./routes/users.routes"
 
 dotenv.config()
 
@@ -19,7 +19,6 @@ initializeFirebase()
 const app = express()
 
 const corsOptions: cors.CorsOptions = {
-  origin: "http://localhost:5173", // NÃO pode ser "*"
   credentials: true,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
 }

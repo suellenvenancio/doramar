@@ -12,5 +12,6 @@ export function actorsRoutes() {
   router.get("/", authenticate, getAllActors)
   router.get("/favorite/user/:userId", authenticate, findFavoriteActorsByUserId)
   router.post("/user/:userId/favorite", addActorToFavorites)
+
   return router
 }
