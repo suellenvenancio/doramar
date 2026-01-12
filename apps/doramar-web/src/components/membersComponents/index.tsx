@@ -11,14 +11,15 @@ export function Members({ name, profilePicture, id }: MembersProps) {
   const navigate = useNavigate()
 
   return (
-    <div className="grid grid-cols-1 items-en gap-1" onClick={() => navigate(`/profile/${id}`)}>
+    <div className="grid grid-cols-1 gap-1" onClick={() => navigate(`/profile/${id}`)}>
       <Avatar
         title={name}
         imageUrl={profilePicture}
         className="rounded-full w-15 h-15"
       />
       <p
-        className="text-xs"
+        className="text-xs text-start w-full"
+
       >
         {name}
       </p>

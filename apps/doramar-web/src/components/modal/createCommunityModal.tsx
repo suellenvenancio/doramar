@@ -1,6 +1,6 @@
 import { CommunityVisibility } from "@/types"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
+import { Controller, useForm } from "react-hook-form"
 import z from "zod"
 import { IconButton } from "../button/iconButton"
 import { CloseIcon } from "../icons/close"
@@ -103,11 +103,20 @@ export function CreateCommunityModal({
             >
               Visibilidade
             </label>
-            <select className="w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none transition-all text-base mb-2 p-4">
-              <option value={CommunityVisibility.PRIVATE}>PRIVADO</option>
-              <option value={CommunityVisibility.PRIVATE}>PÚBLICO</option>
-              <option value={CommunityVisibility.PRIVATE}>SECRETO</option>
-            </select>
+            <Controller
+              name="visibility"
+              control={control}
+              render={({ field }) => (
+                <select
+                  {...field}
+                  className="w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none transition-all text-base mb-2 p-4"
+                >
+                  <option value={CommunityVisibility.PUBLIC}>PÚBLICO</option>
+                  <option value={CommunityVisibility.PRIVATE}>PRIVADO</option>
+                  <option value={CommunityVisibility.SECRET}>SECRETO</option>
+                </select>
+              )}
+            />
           </div>
 
           <div className="flex justify-end gap-3 mt-2">
@@ -116,7 +125,7 @@ export function CreateCommunityModal({
               onClick={onClose}
               className="px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors no-underline"
             />
-           
+
             <CustomButton
               name={"Criar"}
               loading={isLoading}

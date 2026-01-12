@@ -104,7 +104,7 @@ export function CommunityCard({
       <Avatar
         imageUrl={avatar}
         title={name}
-        className="rounded-full p-6 w-20"
+        className="rounded-xl w-28 h-28"
       />
 
       <h3 className="text-lg font-semibold text-gray-800">{name}</h3>

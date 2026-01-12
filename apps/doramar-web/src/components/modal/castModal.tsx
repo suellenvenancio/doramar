@@ -22,7 +22,7 @@ export function CastModal({
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[999] flex justify-center items-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
-         <div className="flex items-center justify-between p-4 border-b">
+        <div className="flex items-center justify-between p-4 border-b">
           <h2 className="text-lg font-semibold text-gray-800">Elenco</h2>
           <button
             onClick={onClose}
