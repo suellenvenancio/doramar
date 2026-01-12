@@ -1,3 +1,5 @@
+import { mergeCn } from "@/utils/cn";
+
 export function TrashIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -8,7 +10,7 @@ export function TrashIcon({ className }: { className?: string }) {
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className={`${className} w-5 h-5`}
+      className={mergeCn("h-5 w-5", className)}
     >
       <polyline points="3 6 5 6 21 6" />
       <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
