@@ -15,7 +15,7 @@ describe("Communities Service", () => {
         .mockResolvedValue(null)
 
       await expect(
-        communitiesService.deleteComment(commentId, postId, communityId),
+        communitiesService.deleteComment({ commentId, postId, communityId }),
       ).rejects.toThrow("Comment not found!")
 
       expect(findCommentByIdSpy).toHaveBeenCalledWith(commentId)
@@ -34,7 +34,7 @@ describe("Communities Service", () => {
         .mockResolvedValue(null)
 
       await expect(
-        communitiesService.deleteComment(commentId, postId, communityId),
+        communitiesService.deleteComment({ commentId, postId, communityId }),
       ).rejects.toThrow("Post not found!")
 
       expect(findCommentByIdSpy).toHaveBeenCalledWith(commentId)
@@ -65,7 +65,7 @@ describe("Communities Service", () => {
         .mockResolvedValue(null)
 
       await expect(
-        communitiesService.deleteComment(commentId, postId, communityId),
+        communitiesService.deleteComment({ commentId, postId, communityId }),
       ).rejects.toThrow("Community not found!")
 
       expect(findCommentByIdSpy).toHaveBeenCalledWith(commentId)
@@ -96,7 +96,7 @@ describe("Communities Service", () => {
         } as any)
 
       await expect(
-        communitiesService.deleteComment(commentId, postId, communityId),
+        communitiesService.deleteComment({ commentId, postId, communityId }),
       ).rejects.toThrow("Post dont belong to this community!")
 
       expect(findCommentByIdSpy).toHaveBeenCalledWith(commentId)
@@ -124,7 +124,7 @@ describe("Communities Service", () => {
       } as any)
 
       await expect(
-        communitiesService.deleteComment(commentId, postId, communityId),
+        communitiesService.deleteComment({ commentId, postId, communityId }),
       ).rejects.toThrow("Comment dont belong to this post!")
     })
 
@@ -153,7 +153,7 @@ describe("Communities Service", () => {
         .mockResolvedValue({} as any)
 
       await expect(
-        communitiesService.deleteComment(commentId, postId, communityId),
+        communitiesService.deleteComment({ commentId, postId, communityId }),
       ).resolves.not.toThrow()
 
       expect(findCommentByIdSpy).toHaveBeenCalledWith(commentId)
