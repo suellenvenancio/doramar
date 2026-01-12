@@ -7,6 +7,7 @@ import {
 import communitiesRepository from "../repository/communities.repository"
 import userRepository from "../repository/user.repository"
 import { AppError } from "../utils/errors"
+import { uploadImage } from "../utils/upload-image-vercel"
 
 async function getAllCommunities() {
   try {
@@ -16,6 +17,7 @@ async function getAllCommunities() {
         name: c.name,
         description: c.description,
         visibility: c.visibility,
+        coverUrl: c.coverUrl,
         avatarUrl: c.avatarUrl,
         rules: c.rules,
         createdAt: c.createdAt,
@@ -277,6 +279,140 @@ async function addCommunityMember({
   })
 }
 
+async function uploadCommunityProfilePicture(
+  communityId: string,
+  avatarUrl: Express.Multer.File,
+) {
+  try {
+    const community = await communitiesRepository.findCommunityById(communityId)
+
+    if (!community) {
+      throw new AppError("Community not found!", 404)
+    }
+
+    const blob = await uploadImage(avatarUrl)
+
+    return await communitiesRepository.updateCommunityProfilePicture(
+      communityId,
+      blob.url,
+    )
+  } catch (error) {
+    console.error(`Error on upload community profile picture!: ${error}`)
+    throw error
+  }
+}
+
+async function uploadCommunityCoverPicture(
+  communityId: string,
+  coverUrl: Express.Multer.File,
+) {
+  try {
+    const community = await communitiesRepository.findCommunityById(communityId)
+
+    if (!community) {
+      throw new AppError("Community not found!", 404)
+    }
+
+    const blob = await uploadImage(coverUrl)
+
+    return await communitiesRepository.updateCommunityCoverPicture(
+      communityId,
+      blob.url,
+    )
+  } catch (error) {
+    console.error(`Error on upload community cover picture!: ${error}`)
+    throw error
+  }
+}
+
+async function deleteCommunity(communityId: string) {
+  try {
+    const community = await communitiesRepository.findCommunityById(communityId)
+
+    if (!community) {
+      throw new AppError("Community not found!", 404)
+    }
+
+    await communitiesRepository.deleteCommunityById(communityId)
+  } catch (error) {
+    console.error(`Error on delete community!: ${error}`)
+    throw error
+  }
+}
+
+async function deletePost(postId: string, communityId: string) {
+  try {
+    const post = await communitiesRepository.findPostById(postId)
+
+    if (!post) {
+      throw new AppError("Post not found!", 404)
+    }
+
+    const community = await communitiesRepository.findCommunityById(communityId)
+    if (!community) {
+      throw new AppError("Community not found!", 404)
+    }
+
+    const communityHasThePost = community.posts.some((p) => p.id === postId)
+
+    if (!communityHasThePost) {
+      throw new AppError("Post dont belong to this community!", 404)
+    }
+
+    await communitiesRepository.deletePostById(postId)
+  } catch (error) {
+    console.error(`Error on delete post!: ${error}`)
+    throw error
+  }
+}
+
+async function deleteComment({
+  commentId,
+  postId,
+  communityId,
+}: {
+  commentId: string
+  postId: string
+  communityId: string
+}) {
+  try {
+    const comment = await communitiesRepository.findCommentById(commentId)
+
+    if (!comment) {
+      throw new AppError("Comment not found!", 404)
+    }
+
+    const post = await communitiesRepository.findPostById(postId)
+
+    if (!post) {
+      throw new AppError("Post not found!", 404)
+    }
+
+    const postHasTheComment = post.comments.some((c) => c.id === commentId)
+
+    if (!postHasTheComment) {
+      throw new AppError("Comment dont belong to this post!", 404)
+    }
+
+    const community = await communitiesRepository.findCommunityById(communityId)
+
+    if (!community) {
+      throw new AppError("Community not found!", 404)
+    }
+
+    const communityHasThePost = community.posts.some((p) => p.id === postId)
+
+    if (!communityHasThePost) {
+      throw new AppError("Post dont belong to this community!", 404)
+    }
+
+    await communitiesRepository.deleteCommentById(commentId)
+  } catch (error) {
+    console.error(`Error on delete comment!: ${error}`)
+    throw error
+  }
+}
+
 const communitiesService = {
   getAllCommunities,
   createCommunity,
@@ -287,6 +423,11 @@ const communitiesService = {
   createReaction,
   getReactionsByPostId,
   addCommunityMember,
+  uploadCommunityProfilePicture,
+  uploadCommunityCoverPicture,
+  deleteCommunity,
+  deletePost,
+  deleteComment,
 }
 
 export default communitiesService

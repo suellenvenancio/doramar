@@ -1,10 +1,16 @@
-import actorsRepository from "../../../src/repository/actors.repository"
-import tvShowRepository from "../../../src/repository/tvshow.repository"
 import userRepository from "../../../src/repository/user.repository"
 import userService from "../../../src/services/user.service"
 import { AppError } from "../../../src/utils/errors"
 
+const mockCreateUser = jest.fn()
 jest.spyOn(console, "error").mockImplementation(() => {})
+jest.mock("firebase-admin/auth", () => ({
+  getAuth: jest.fn(() => ({
+    createUser: mockCreateUser,
+    deleteUser: jest.fn(),
+    getUserByEmail: jest.fn(),
+  })),
+}))
 
 describe("User Service", () => {
   describe("updateUser", () => {
@@ -34,7 +40,7 @@ describe("User Service", () => {
         .mockRejectedValueOnce(new AppError("Username already in use", 409))
 
       await expect(
-        userService.updateUser(mockId, mockUpdateData)
+        userService.updateUser(mockId, mockUpdateData),
       ).rejects.toThrow("Username already in use")
     })
 
@@ -61,7 +67,7 @@ describe("User Service", () => {
         .mockRejectedValueOnce(new AppError("Email already in use", 409))
 
       await expect(
-        userService.updateUser(mockId, mockUpdateData)
+        userService.updateUser(mockId, mockUpdateData),
       ).rejects.toThrow("Email already in use")
     })
 
@@ -76,7 +82,7 @@ describe("User Service", () => {
         .mockRejectedValueOnce(new AppError("User not found", 404))
 
       await expect(
-        userService.updateUser(mockId, mockUpdateData)
+        userService.updateUser(mockId, mockUpdateData),
       ).rejects.toThrow("User not found")
     })
 
@@ -93,8 +99,6 @@ describe("User Service", () => {
         createdAt: new Date(),
         updatedAt: new Date(),
         profilePicture: "",
-        favoriteActors: [],
-        favoriteTvShow: undefined,
       }
 
       jest
@@ -114,7 +118,7 @@ describe("User Service", () => {
 
       expect(userRepository.updateUser).toHaveBeenCalledWith(
         mockId,
-        mockUpdateData
+        mockUpdateData,
       )
       expect(result).toEqual(mockUpdatedUser)
       expect(result.username).toBe(mockUpdateData.username)
@@ -130,7 +134,7 @@ describe("User Service", () => {
         .mockRejectedValueOnce(new AppError("User not found!", 404))
 
       await expect(userService.findUserById(mockId)).rejects.toThrow(
-        "User not found"
+        "User not found",
       )
     })
     it("should return user data when user exists", async () => {
@@ -143,17 +147,10 @@ describe("User Service", () => {
         createdAt: new Date(),
         updatedAt: new Date(),
         profilePicture: "",
-        favoriteActors: [],
-        favoriteTvShow: undefined,
       }
 
       jest.spyOn(userRepository, "findUserById").mockResolvedValueOnce(mockUser)
-      jest
-        .spyOn(tvShowRepository, "findFavoriteTvShowByUserId")
-        .mockResolvedValueOnce(null)
-      jest
-        .spyOn(actorsRepository, "findFavoriteActorsByUserId")
-        .mockResolvedValueOnce([])
+
       const result = await userService.findUserById(mockId)
 
       expect(userRepository.findUserById).toHaveBeenCalledWith(mockId)
@@ -170,7 +167,7 @@ describe("User Service", () => {
         .mockRejectedValueOnce(new AppError("Email not found!", 404))
 
       await expect(userService.findUserByEmail(mockEmail)).rejects.toThrow(
-        "Email not found!"
+        "Email not found!",
       )
     })
 
@@ -184,17 +181,10 @@ describe("User Service", () => {
         createdAt: new Date(),
         updatedAt: new Date(),
         profilePicture: "",
-        favoriteActors: [],
-        favoriteTvShow: undefined,
       }
 
       jest.spyOn(userRepository, "findByEmail").mockResolvedValueOnce(mockUser)
-      jest
-        .spyOn(tvShowRepository, "findFavoriteTvShowByUserId")
-        .mockResolvedValueOnce(null)
-      jest
-        .spyOn(actorsRepository, "findFavoriteActorsByUserId")
-        .mockResolvedValueOnce([])
+
       const result = await userService.findUserByEmail(mockEmail)
 
       expect(userRepository.findByEmail).toHaveBeenCalledWith(mockEmail)
@@ -208,23 +198,35 @@ describe("User Service", () => {
         email: "newemail@test.com",
         username: "existingusername",
         name: "New User",
+        id: "unique-id",
+        password: "password123",
       }
+
+      mockCreateUser.mockResolvedValueOnce(() => ({
+        uid: "unique-id",
+      }))
 
       jest
         .spyOn(userRepository, "validationUniqueUsername")
         .mockRejectedValueOnce(new AppError("Username already in use!", 409))
 
       await expect(userService.createUser(mockUserData)).rejects.toThrow(
-        "Username already in use!"
+        "Username already in use!",
       )
     })
 
     it("should throw error when email is already in use", async () => {
+      mockCreateUser.mockResolvedValueOnce(() => ({
+        uid: "unique-id",
+      }))
+
       const mockUserData = {
         email: "existing@test.com",
         username: "newusername",
         name: "New User",
         profilePicture: "",
+        password: "password123",
+        id: "unique-id",
       }
 
       jest
@@ -235,19 +237,24 @@ describe("User Service", () => {
         .mockRejectedValueOnce(new AppError("Email already in use!", 409))
 
       await expect(userService.createUser(mockUserData)).rejects.toThrow(
-        "Email already in use!"
+        "Email already in use!",
       )
     })
 
     it("should create user successfully", async () => {
+      mockCreateUser.mockResolvedValueOnce(() => ({
+        uid: "unique-id",
+      }))
+
       const mockUserData = {
         email: "newuser@test.com",
         username: "newusername",
         name: "New User",
         profilePicture: "",
+        password: "password123",
+        id: "unique-id",
       }
       const mockCreatedUser = {
-        id: "123",
         ...mockUserData,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -280,7 +287,7 @@ describe("User Service", () => {
         .mockRejectedValueOnce(new AppError("User not found!", 404))
 
       await expect(userService.deleteUser(mockId)).rejects.toThrow(
-        "User not found!"
+        "User not found!",
       )
     })
 

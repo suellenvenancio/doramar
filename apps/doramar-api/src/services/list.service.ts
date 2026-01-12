@@ -1,6 +1,6 @@
 import listsRepository from "../repository/list.repository"
 import tvShowRepository from "../repository/tvshow.repository"
-import { TvShows } from "../types"
+import { TvShow } from "../types"
 import { AppError } from "../utils/errors"
 
 async function findListById(id: string) {
@@ -106,7 +106,7 @@ async function updateListOrder({
   userId,
 }: {
   listId: string
-  tvShows: TvShows[]
+  tvShows: TvShow[]
   userId: string
 }) {
   try {

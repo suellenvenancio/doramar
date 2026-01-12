@@ -6,10 +6,11 @@ import {
   findUserByEmail,
   findUserById,
   updateUser,
-} from "../../../src/controller/user.controller"
+} from "../../../src/controller/users.controller"
 import { AppError } from "../../../src/utils/errors"
 
 jest.spyOn(console, "error").mockImplementation(() => {})
+
 describe("User Controller", () => {
   let mockRequest: Partial<Request>
   let mockResponse: Partial<Response>
@@ -41,7 +42,7 @@ describe("User Controller", () => {
       await createUser(
         mockRequest as Request,
         mockResponse as Response,
-        nextFunction
+        nextFunction,
       )
 
       expect(mockResponse?.json).toHaveBeenCalledWith({
@@ -67,7 +68,7 @@ describe("User Controller", () => {
       await createUser(
         mockRequest as Request,
         mockResponse as Response,
-        nextFunction
+        nextFunction,
       )
 
       expect(mockResponse?.json).toHaveBeenCalledWith({
@@ -103,7 +104,7 @@ describe("User Controller", () => {
       await createUser(
         mockRequest as Request,
         mockResponse as Response,
-        nextFunction
+        nextFunction,
       )
 
       expect(userService.createUser).toHaveBeenCalledWith(userData)
@@ -132,7 +133,7 @@ describe("User Controller", () => {
       await findUserById(
         mockRequest as Request,
         mockResponse as Response,
-        nextFunction
+        nextFunction,
       )
       expect(userService.findUserById).toHaveBeenCalledWith(userId)
       expect(mockResponse.status).toHaveBeenCalledWith(404)
@@ -148,8 +149,6 @@ describe("User Controller", () => {
         password: "hash",
         createdAt: new Date("2023-01-01"),
         updatedAt: new Date("2023-01-01"),
-        favoriteActors: [],
-        favoriteTvShow: undefined,
         profilePicture: "https://",
       }
 
@@ -162,7 +161,7 @@ describe("User Controller", () => {
       await findUserById(
         mockRequest as Request,
         mockResponse as Response,
-        nextFunction
+        nextFunction,
       )
       expect(userService.findUserById).toHaveBeenCalledWith(userId)
       expect(mockResponse.status).toHaveBeenCalledWith(200)
@@ -190,7 +189,7 @@ describe("User Controller", () => {
       await findUserByEmail(
         mockRequest as Request,
         mockResponse as Response,
-        nextFunction
+        nextFunction,
       )
 
       expect(userService.findUserByEmail).toHaveBeenCalledWith(email)
@@ -204,8 +203,6 @@ describe("User Controller", () => {
         username: "testuser",
         createdAt: new Date("2023-01-01"),
         updatedAt: new Date("2023-01-01"),
-        favoriteActors: [],
-        favoriteTvShow: undefined,
         profilePicture: "https://",
       }
 
@@ -221,7 +218,7 @@ describe("User Controller", () => {
       await findUserByEmail(
         mockRequest as Request,
         mockResponse as Response,
-        nextFunction
+        nextFunction,
       )
 
       expect(userService.findUserByEmail).toHaveBeenCalledWith(email)
@@ -251,7 +248,7 @@ describe("User Controller", () => {
       await updateUser(
         mockRequest as Request,
         mockResponse as Response,
-        nextFunction
+        nextFunction,
       )
 
       expect(userService.updateUser).toHaveBeenCalledWith(userId, userData)
@@ -269,7 +266,7 @@ describe("User Controller", () => {
       await deleteUserById(
         mockRequest as Request,
         mockResponse as Response,
-        nextFunction
+        nextFunction,
       )
 
       expect(userService.deleteUser).toHaveBeenCalledWith(userId)

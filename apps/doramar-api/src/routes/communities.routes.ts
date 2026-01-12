@@ -6,11 +6,17 @@ import {
   createCommunity,
   createPost,
   createReaction,
+  deleteComment,
+  deleteCommunity,
+  deletePost,
   getAllCommunities,
   getPostComments,
   getPostsByCommunityId,
   getReactionsByPostId,
+  uploadCommunityCoverPicture,
+  uploadCommunityProfilePicture,
 } from "../controller/communities.controller"
+import { upload } from "@/middleware/upload"
 
 export function communitiesRoutes() {
   const router = express.Router()
@@ -24,6 +30,25 @@ export function communitiesRoutes() {
   router.post("/post/:postId/reactions", authenticate, createReaction)
   router.get("/post/:postId/reactions", authenticate, getReactionsByPostId)
   router.post("/:communityId/members", authenticate, addMemberOnTheCommunity)
+  router.patch(
+    "/:communityId/avatar",
+    upload.single("file"),
+    authenticate,
+    uploadCommunityProfilePicture,
+  )
+  router.patch(
+    "/:communityId/cover",
+    upload.single("file"),
+    authenticate,
+    uploadCommunityCoverPicture,
+  )
+  router.delete(
+    "/:communityId/post/:postId/comments/:commentId",
+    authenticate,
+    deleteComment,
+  )
+  router.delete("/:communityId/post/:postId", authenticate, deletePost)
+  router.delete("/:communityId", authenticate, deleteCommunity)
 
   return router
 }

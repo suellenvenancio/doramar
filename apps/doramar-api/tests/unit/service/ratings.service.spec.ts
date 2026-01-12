@@ -43,7 +43,7 @@ describe("Ratings service", () => {
       jest.spyOn(tvShowRepository, "findTvShowById").mockResolvedValueOnce(null)
 
       await expect(ratingsService.createRating(mockRatingData)).rejects.toThrow(
-        "TV Show not found!"
+        "TV Show not found!",
       )
     })
 
@@ -96,7 +96,7 @@ describe("Ratings service", () => {
       const createdRating = await ratingsService.createRating(mockRatingData)
 
       expect(ratingsRepository.createRating).toHaveBeenCalledWith(
-        mockRatingData
+        mockRatingData,
       )
       expect(createdRating).toEqual(mockCreatedRating)
     })
@@ -175,7 +175,7 @@ describe("Ratings service", () => {
       const ratings = await ratingsService.getRatingsByUserId(mockUserId)
 
       expect(ratingsRepository.getRatingsByUserId).toHaveBeenCalledWith(
-        mockUserId
+        mockUserId,
       )
       expect(ratings).toEqual(mockRatings)
     })
@@ -191,7 +191,7 @@ describe("Ratings service", () => {
         { id: 1, label: "Péssimo" },
         { id: 2, label: "Entediante" },
         { id: 3, label: "Mediano" },
-        { id: 4, label: "Muito bom" },
+        { id: 4, label: "Bom" },
         { id: 5, label: "Amei" },
       ]
       jest
@@ -269,7 +269,7 @@ describe("Ratings service", () => {
 
       expect(ratingsRepository.createRatingScale).toHaveBeenCalledWith(
         mockScaleData.id,
-        mockScaleData.label
+        mockScaleData.label,
       )
       expect(createdScale).toEqual(mockCreatedScale)
     })

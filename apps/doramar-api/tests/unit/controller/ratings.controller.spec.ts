@@ -8,6 +8,8 @@ import {
 } from "../../../src/controller/ratings.controller"
 import { AppError } from "../../../src/utils/errors"
 
+jest.spyOn(console, "error").mockImplementation(() => {})
+
 describe("Ratings Controller", () => {
   let mockRequest: Partial<Request>
   let mockResponse: Partial<Response>
@@ -38,7 +40,7 @@ describe("Ratings Controller", () => {
       await createRating(
         mockRequest as Request,
         mockResponse as Response,
-        nextFunction
+        nextFunction,
       )
 
       expect(mockResponse?.json).toHaveBeenCalledWith({
@@ -86,7 +88,7 @@ describe("Ratings Controller", () => {
       await createRating(
         mockRequest as Request,
         mockResponse as Response,
-        nextFunction
+        nextFunction,
       )
 
       expect(ratingsServices.createRating).toHaveBeenCalledWith(ratingData)
@@ -172,7 +174,7 @@ describe("Ratings Controller", () => {
       await getRatingsByUserId(
         mockRequest as Request,
         mockResponse as Response,
-        nextFunction
+        nextFunction,
       )
 
       expect(mockResponse?.json).toHaveBeenCalledWith({
@@ -189,7 +191,7 @@ describe("Ratings Controller", () => {
         { id: 1, label: "Péssimo" },
         { id: 2, label: "Entediante" },
         { id: 3, label: "Mediano" },
-        { id: 4, label: "Muito bom" },
+        { id: 4, label: "Bom" },
         { id: 5, label: "Amei" },
       ]
 
@@ -200,7 +202,7 @@ describe("Ratings Controller", () => {
       await getRatingScales(
         mockRequest as Request,
         mockResponse as Response,
-        nextFunction
+        nextFunction,
       )
 
       expect(mockResponse?.json).toHaveBeenCalledWith({
@@ -250,7 +252,7 @@ describe("Ratings Controller", () => {
       await getRatingById(
         mockRequest as Request,
         mockResponse as Response,
-        nextFunction
+        nextFunction,
       )
 
       expect(mockResponse?.json).toHaveBeenCalledWith({

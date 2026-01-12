@@ -24,15 +24,6 @@ async function getTvShowsByPage(page?: number, limit?: number) {
   }
 }
 
-async function createTvShow(params: any) {
-  try {
-    return await tvShowRepository.createTvShow(params)
-  } catch (error) {
-    console.error("Error creating TV show:", error)
-    throw new Error("Could not create TV show!")
-  }
-}
-
 async function findWatchedTvShowsByUserId(userId: string) {
   try {
     const user = await userRepository.findUserById(userId)
@@ -149,13 +140,89 @@ async function getAllTvShows() {
   }
 }
 
+async function findFavoriteTvShowByUser(userId: string) {
+  try {
+    const user = await userRepository.findUserById(userId)
+
+    if (!user) {
+      throw new AppError("User not found!", 404)
+    }
+
+    const favoriteTvShow =
+      await tvShowRepository.findFavoriteTvShowByUserId(userId)
+    return favoriteTvShow?.tvShow
+  } catch (error) {
+    console.error("Error fetching TV shows:", error)
+    throw new Error("Could not favorite TV shows!")
+  }
+}
+
+async function addTVShowToFavorites(userId: string, tvShowId: string) {
+  try {
+    const user = await userRepository.findUserById(userId)
+
+    if (!user) {
+      throw new AppError("User not found!", 404)
+    }
+
+    const tvShow = await tvShowRepository.findTvShowById(tvShowId)
+
+    if (!tvShow) {
+      throw new AppError("TV Show not found!", 404)
+    }
+
+    const existentFavoriteTvShow =
+      await tvShowRepository.findFavoriteTvShowByUserId(userId)
+
+    if (
+      existentFavoriteTvShow &&
+      existentFavoriteTvShow?.tvShow.id !== tvShowId
+    ) {
+      const favoriteTvShow = await tvShowRepository.updateFavoriteTvShow(
+        userId,
+        tvShowId,
+        existentFavoriteTvShow.id,
+      )
+      return {
+        ...user,
+        favoriteTvShow: favoriteTvShow.tvShow,
+      }
+    }
+
+    if (
+      existentFavoriteTvShow &&
+      existentFavoriteTvShow?.tvShowId === tvShowId
+    ) {
+      await tvShowRepository.removeTvShowAsFavorite(existentFavoriteTvShow.id)
+      return {
+        ...user,
+        favoriteTvShow: undefined,
+      }
+    }
+
+    const favoriteTvShow = await tvShowRepository.addTVShowToFavorite(
+      userId,
+      tvShowId,
+    )
+
+    return {
+      ...user,
+      favoriteTvShow: favoriteTvShow.tvShow,
+    }
+  } catch (error) {
+    console.error("Error adding TV show to favorites:", error)
+    throw error
+  }
+}
+
 const tvShowsService = {
   watchedStatus,
   markTvShowAsWatched,
-  createTvShow,
   getAllTvShows,
   findWatchedTvShowsByUserId,
   getTvShowsByPage,
+  findFavoriteTvShowByUser,
+  addTVShowToFavorites,
 }
 
 export default tvShowsService

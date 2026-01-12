@@ -1,6 +1,7 @@
 import express from "express"
 import {
-  createTvShow,
+  addTVShowToFavorites,
+  findFavoriteTvShowByUserId,
   findWatchedTvShowsByUserId,
   getAllTvShows,
   getTvShowsByPage,
@@ -14,10 +15,15 @@ export function tvShowsRoutes() {
 
   router.get("/all", authenticate, getAllTvShows)
   router.get("/", authenticate, getTvShowsByPage)
-  router.post("/", authenticate, createTvShow)
   router.get("/watched/user/:userId", authenticate, findWatchedTvShowsByUserId)
   router.post("/watched", authenticate, markTvShowAsWatched)
   router.get("/watched/status", authenticate, getWatchedStatus)
+  router.get("/favorite/user/:userId", authenticate, findFavoriteTvShowByUserId)
+  router.post(
+    "/user/:userId/favoriteTvShow",
+    authenticate,
+    addTVShowToFavorites,
+  )
 
   return router
 }
