@@ -1,5 +1,4 @@
 import type {   Member } from "@/types"
-import { Avatar } from "../avatar"
 import { useNavigate } from "react-router-dom"
 import { MemberCard } from "../memberCart"
 
@@ -34,7 +33,7 @@ export function MemberModal({
         <div className="p-4 space-y-3 max-h-[70vh] overflow-y-auto">
           {members.map((member) => {
             return (
-           <MemberCard id={member.id} profilePicture={member.user.profilePicture} name={member.user.name} isAddMemberModal />
+              <MemberCard id={member.userId} profilePicture={member.user.profilePicture} name={member.user.name} isAddMemberModal={false} />
             )
           })}
         </div>
