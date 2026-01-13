@@ -62,12 +62,21 @@ export function ListsDetailsPage() {
   }
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(TouchSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, 
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250,  
+        tolerance: 5, 
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
+    }),
+  )
  
 
   return (
@@ -116,40 +125,43 @@ interface ListItemProps {
   listId: string;
 }
 function ListItem({ tvShow, onRemoveTvShow, listId }: ListItemProps) {
-  const { attributes, listeners, setNodeRef, transform, transition } =
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: tvShow.id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-  };
+    zIndex: isDragging ? 50 : 0,
+    opacity: isDragging ? 0.6 : 1,
+  }
   return (
     <div
-      className='max-w-dvw rounded-2xl bg-[#F9E1F1] px-6 py-4 shadow-[0_8px_24px_rgba(219,170,201,0.35)] m-4'
+      className="max-w-dvw rounded-2xl bg-[#F9E1F1] px-6 py-4 shadow-[0_8px_24px_rgba(219,170,201,0.35)] m-4"
       style={style}
       ref={setNodeRef}
-      {...attributes}
     >
-      <div className='flex items-center justify-between'>
-        <div className='flex items-center gap-4'>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
           <span
-            className='cursor-grab select-none text-lg text-[#9B8AA0]'
+            className="cursor-grab select-none text-lg text-[#9B8AA0]"
+            {...attributes}
             {...listeners}
+            style={{ touchAction: "none" }}
           >
             <MenuIcon />
           </span>
 
-          <div className='flex flex-col gap-1'>
-            <p className='text-lg font-semibold text-[#4B2E3F]'>
+          <div className="flex flex-col gap-1">
+            <p className="text-lg font-semibold text-[#4B2E3F]">
               {tvShow.title}
             </p>
           </div>
         </div>
         <IconButton
-          icon={<TrashIcon className='text-[#C2185B]' />}
+          icon={<TrashIcon className="text-[#C2185B]" />}
           onClick={() => onRemoveTvShow(tvShow, listId)}
         />
       </div>
     </div>
-  );
+  )
 }
