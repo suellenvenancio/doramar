@@ -320,33 +320,31 @@ export function CommunityDetails() {
                     <ConfirmationModal
                       isOpen={showCommunityModal}
                       onClose={() => setShowCommunityModal(false)}
-                      onClick={handleDeleteCommunity} 
+                      onClick={handleDeleteCommunity}
                       id={communityId ?? ""}
-                      question={"Tem certeza que deseja deletar esta comunidade?"}
+                      question={
+                        "Tem certeza que deseja deletar esta comunidade?"
+                      }
                     />
                   </div>
                 )}
 
-                <div className="flex justify-start p-2 flex-1">
+                <div className="flex flex-col items-end gap-2 ml-auto p-2">
                   {userIsOwnerOrModerator && commuityIsPrivateOrSecret && (
                     <CustomButton
                       name={"add membro"}
                       loading={false}
-                      className="w-24 rounded-xl border border-pink-600 px-4 py-2 text-sm font-medium text-white h-12 bg-pink-600"
+                      className="w-40 rounded-xl border border-pink-600 px-4 py-2 text-sm font-medium text-white h-11 bg-pink-600"
                       onClick={() => setShowAddMemberModal(true)}
                     />
                   )}
-                </div>
 
-                <div className="flex flex-col items-end justify-evenly md:justify-start gap-4">
                   {!userIsCommunityMember &&
                     communityVisibility === CommunityVisibility.PUBLIC && (
                       <CustomButton
                         name={"+ entrar"}
                         loading={false}
-                        className={
-                          "w-24 rounded-xl border border-pink-600 px-4 py-2 text-sm font-medium text-white transition"
-                        }
+                        className="w-40 rounded-xl border border-pink-600 px-4 py-2 text-sm font-medium text-white bg-pink-600 transition h-11"
                         onClick={() =>
                           communityId
                             ? addMemberOnTheCommunity(
@@ -357,11 +355,12 @@ export function CommunityDetails() {
                         }
                       />
                     )}
+
                   <CustomButton
                     onClick={() => setModalIsOpen(true)}
                     loading={false}
                     name="ver participantes"
-                    className="w-40 rounded-xl border bg-white border-pink-600 px-4 py-2 text-sm font-medium text-pink-600 transition md:hidden"
+                    className="w-40 rounded-xl border bg-white border-pink-600 px-4 py-2 text-sm font-medium text-pink-600 transition h-11 md:hidden"
                   />
                 </div>
               </div>
