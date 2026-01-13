@@ -82,7 +82,7 @@ export function PostComponent({
   const navigate = useNavigate()
 
   const reactions = [
-    { type: "LIKE", emoji: <LikeIcon />, label: "Curtir", color: "blue-500" },
+    { type: "LIKE", emoji: <LikeIcon />, label: "Curtir", color: "green-500" },
     { type: "LOVE", emoji: <HeartIcon />, label: "Amei", color: "red-500" },
     {
       type: "LAUGH",
