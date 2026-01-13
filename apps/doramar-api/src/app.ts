@@ -18,7 +18,9 @@ dotenv.config()
 initializeFirebase()
 const app = express()
 
-const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",")
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",").map((origin) =>
+  origin.trim(),
+)
 
 const corsOptions: cors.CorsOptions = {
   origin: (origin, callback) => {
