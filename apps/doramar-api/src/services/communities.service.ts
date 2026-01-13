@@ -7,7 +7,7 @@ import {
 import communitiesRepository from "../repository/communities.repository"
 import userRepository from "../repository/user.repository"
 import { AppError } from "../utils/errors"
-import { uploadImage } from "../utils/upload-image-vercel"
+import { compressIfNeeded, uploadImage } from "../utils/image"
 
 async function getAllCommunities() {
   try {
@@ -281,7 +281,7 @@ async function addCommunityMember({
 
 async function uploadCommunityProfilePicture(
   communityId: string,
-  avatarUrl: Express.Multer.File,
+  file: Express.Multer.File,
 ) {
   try {
     const community = await communitiesRepository.findCommunityById(communityId)
@@ -290,7 +290,15 @@ async function uploadCommunityProfilePicture(
       throw new AppError("Community not found!", 404)
     }
 
-    const blob = await uploadImage(avatarUrl)
+    const compressedBuffer = await compressIfNeeded(file)
+
+    const fileToUpload = {
+      ...file,
+      buffer: compressedBuffer,
+      size: compressedBuffer.length,
+    }
+
+    const blob = await uploadImage(fileToUpload)
 
     return await communitiesRepository.updateCommunityProfilePicture(
       communityId,
@@ -304,7 +312,7 @@ async function uploadCommunityProfilePicture(
 
 async function uploadCommunityCoverPicture(
   communityId: string,
-  coverUrl: Express.Multer.File,
+  file: Express.Multer.File,
 ) {
   try {
     const community = await communitiesRepository.findCommunityById(communityId)
@@ -313,7 +321,15 @@ async function uploadCommunityCoverPicture(
       throw new AppError("Community not found!", 404)
     }
 
-    const blob = await uploadImage(coverUrl)
+    const compressedBuffer = await compressIfNeeded(file)
+
+    const fileToUpload = {
+      ...file,
+      buffer: compressedBuffer,
+      size: compressedBuffer.length,
+    }
+
+    const blob = await uploadImage(fileToUpload)
 
     return await communitiesRepository.updateCommunityCoverPicture(
       communityId,

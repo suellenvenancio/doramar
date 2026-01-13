@@ -3,7 +3,7 @@ import { RegisterUserInput, User } from "../types"
 import { AppError } from "../utils/errors"
 import { getAuth } from "firebase-admin/auth"
 
-import { uploadImage } from "../utils/upload-image-vercel"
+import { compressIfNeeded, uploadImage } from "../utils/image"
 
 async function findUserByEmail(email: string) {
   const foundedUser = await userRepository.findByEmail(email)
@@ -135,7 +135,15 @@ async function uploadProfilePicture(userId: string, file: Express.Multer.File) {
       throw new AppError("User not found!", 404)
     }
 
-    const blob = await uploadImage(file)
+    const compressedBuffer = await compressIfNeeded(file)
+
+    const fileToUpload = {
+      ...file,
+      buffer: compressedBuffer,
+      size: compressedBuffer.length,
+    }
+
+    const blob = await uploadImage(fileToUpload)
 
     return await userRepository.updateUser(userId, {
       profilePicture: blob.url,
