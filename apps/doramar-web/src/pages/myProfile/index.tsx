@@ -15,7 +15,7 @@ import { useState, useRef, type ChangeEvent } from "react"
 
 export function MyProfilePage() {
   const { user, uploadProfilePicture } = useUser()
-  const { watchedTvShows, favoriteTvShows } = useTvShow()
+  const { watchedTvShows, favoriteTvShow } = useTvShow()
   const { ratings, createRating } = useRating()
   const { lists } = useList() 
   const { favoriteActors } = useActor()
@@ -40,9 +40,9 @@ export function MyProfilePage() {
               icon={<HeartIcon className="text-pink-600" />}
             />
             <FavoriteDrama
-              poster={favoriteTvShows?.poster}
-              title={favoriteTvShows?.title ?? ""}
-              synopsis={favoriteTvShows?.synopsis ?? ""}
+              poster={favoriteTvShow?.poster}
+              title={favoriteTvShow?.title ?? ""}
+              synopsis={favoriteTvShow?.synopsis ?? ""}
             />
           </div>
 

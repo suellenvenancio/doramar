@@ -31,21 +31,40 @@ export function ProfilePage() {
   const {  findFavoriteActorsByUserId } = useActor()
   const { userId } = useParams()
   
+  const fetchUserData = async (userId: string) => {
+    try {
+        const [
+          user,
+          watchedTvShowsFetched,
+          fetchedLists,
+          fetchedRatings,
+          favTvShow,
+          favActors,
+        ] = await Promise.all([
+          findUserById(userId),
+          getWatchedTvShowsByUserId(userId),
+          getListsByUserId(userId),
+          getRatingsByUserId(userId),
+          findFavoriteTvShowByUserId(userId),
+          findFavoriteActorsByUserId(userId),
+        ])
+
+        setUser(user)
+        setWatchedTvShows(watchedTvShowsFetched ?? [])
+        setLists(fetchedLists ?? [])
+        setRatings(fetchedRatings ?? [])
+        setFavoriteTvShows(favTvShow || undefined)
+        setFavoriteActors(favActors)
+    } catch (error) {
+      console.error(`Erro aos buscar dados do usuário: ${error}`)
+    }
+  }
+  
   useEffect(() => {
     if (!userId) return
 
-    findUserById(userId).then((user) => setUser(user))
-    getWatchedTvShowsByUserId(userId).then((watchedTvShowsFetched) =>
-      setWatchedTvShows(watchedTvShowsFetched ?? [])
-    )
-    getListsByUserId(userId).then(fetchedLists => setLists(fetchedLists ?? []))
-    getRatingsByUserId(userId).then((fetchedRatings) =>
-      setRatings(fetchedRatings ?? [])
-    )
-    findFavoriteTvShowByUserId(userId).then((favTvShow) =>
-      setFavoriteTvShows(favTvShow || undefined)
-    )
-    findFavoriteActorsByUserId(userId).then((favActors) => setFavoriteActors(favActors))
+    fetchUserData(userId)
+   
   }, [userId])
 
    return (
