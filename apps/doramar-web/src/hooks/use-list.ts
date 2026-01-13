@@ -6,6 +6,7 @@ import { toast } from "@/components/toast"
 
 export function useList() {
   const [lists, setLists] = useState<ListWithTvShows[]>([])
+  const [isLoading, setIsLoading] = useState(false)
   const { user } = useUser()
 
   const userId = user?.id
@@ -13,8 +14,16 @@ export function useList() {
   useEffect(() => {
     const fetchLists = async () => {
       if (!userId) return
-      const fetchedLists = await listService.getListsByUserId(userId)
-      setLists(fetchedLists)
+
+      try {
+        setIsLoading(true)
+        const fetchedLists = await listService.getListsByUserId(userId)
+        setLists(fetchedLists)
+      } catch (error) {
+        console.log("Erro ao buscar listas!")
+      } finally {
+        setIsLoading(false)
+      }
     }
     fetchLists()
   }, [userId])
@@ -147,5 +156,6 @@ export function useList() {
     removeTvShowFromTheList,
     updateListOrder,
     getListsByUserId,
+    isLoading,
   }
 }

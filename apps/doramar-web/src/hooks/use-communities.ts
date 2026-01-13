@@ -6,17 +6,20 @@ import { toast } from "@/components/toast"
 
 export function useCommunities() {
   const [communities, setCommunities] = useState<Community[]>([])
-
+  const [isLoading, setIsLoading] = useState(false)
   const { user } = useUser()
   const userId = user?.id
 
   useEffect(() => {
     const fetchCommunities = async () => {
       try {
+        setIsLoading(true)
         const fetchedCommunities = await communitiesService.getAllCommunities()
         setCommunities(fetchedCommunities)
       } catch (error) {
         console.error("Failed to fetch communities:", error)
+      } finally {
+        setIsLoading(false)
       }
     }
     fetchCommunities()
@@ -293,6 +296,7 @@ export function useCommunities() {
 
   return {
     communities,
+    isLoading,
     createCommunity,
     createPost,
     getPostsComments,

@@ -1,4 +1,5 @@
 import { Avatar } from "@/components/avatar"
+import { CircleIcon } from "@/components/icons/circle"
 import { Layout } from "@/components/layout"
 import { CreateCommunityModal } from "@/components/modal/createCommunityModal"
 import { useCommunities } from "@/hooks/use-communities"
@@ -11,7 +12,7 @@ export function CommunitiesPage() {
     useState<boolean>(false)
   const navigate = useNavigate()
 
-  const { communities, createCommunity } = useCommunities()
+  const { communities, createCommunity, isLoading } = useCommunities()
 
   return (
     <Layout page="Communities">
@@ -45,6 +46,12 @@ export function CommunitiesPage() {
             Nova comunidade
           </button>
         </div>
+
+        {isLoading && (
+          <div className="flex flex-col items-center justify-center w-full py-24">
+            <CircleIcon className="h-12 w-12 text-pink-600" /> 
+          </div>
+        )}
 
         {communities?.length > 0 ? (
           <div className="flex flex-col md:flex-row items-center justify-center md:gap-6 md:flex-wrap md:justify-start">
