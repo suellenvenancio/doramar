@@ -21,48 +21,56 @@ export function useList() {
 
   const addTvShowToList = useCallback(
     async (list: List, tvShow: TvShow) => {
-      if (!userId) return
-      await listService
-        .addTvShowToList(list.id, tvShow.id, userId)
-        .then(async () => {
-          toast(`${tvShow.title} adicionado a lista, com sucesso`)
-          const listsFetched = await listService.getListsByUserId(userId)
+      if (!userId) {
+        toast("Erro ao adicionar dorama a lista!")
+        return
+      }
+      try {
+        await listService.addTvShowToList(list.id, tvShow.id, userId)
+        toast(`${tvShow.title} adicionado a lista, com sucesso`)
+        const listsFetched = await listService.getListsByUserId(userId)
 
-          setLists(listsFetched)
-        })
-        .catch(() => toast(`Erro ao adicionar ${tvShow.title} à lista!`))
+        setLists(listsFetched)
+      } catch (error) {
+        toast(`Erro ao adicionar ${tvShow.title} à lista!`)
+        console.error(error)
+      }
     },
     [userId],
   )
 
   const createList = useCallback(
     async (name: string) => {
-      if (!userId) return
+      if (!userId) {
+        toast("Erro ao cria lista!")
+        return
+      }
 
-      await listService
-        .createList(name, userId)
-        .then(async () => {
-          const fetchedLists = await listService.getListsByUserId(userId)
+      try {
+        await listService.createList(name, userId)
+        const fetchedLists = await listService.getListsByUserId(userId)
 
-          setLists(fetchedLists)
-        })
-        .catch(() => toast("Erro ao cria lista!"))
+        setLists(fetchedLists)
+      } catch (error) {
+        toast("Erro ao cria lista!")
+        console.error(`Erro ao criar lista: ${error}`)
+      }
     },
     [userId],
   )
 
   const deleteList = useCallback(async (listId: string) => {
     try {
-      await listService
-        .deleteList(listId)
-        .then(async () => {
-          if (!userId) return
-          const fetchedLists = await listService.getListsByUserId(userId)
+      await listService.deleteList(listId)
+      if (!userId) {
+        toast("Erro ao buscar listas!")
+        return
+      }
+      const fetchedLists = await listService.getListsByUserId(userId)
 
-          setLists(fetchedLists)
-        })
-        .catch(() => toast("Erro ao excluir lista!"))
+      setLists(fetchedLists)
     } catch (error) {
+      toast("Erro ao excluir lista!")
       console.error(`Error ao remover lista: ${error}`)
     }
   }, [])
@@ -74,22 +82,23 @@ export function useList() {
     listId: string
     tvShow: TvShow
   }) => {
-    if (!userId) return
+    if (!userId) {
+      toast(`Erro ao remover ${tvShow.title} da lista`)
+      return
+    }
 
     try {
-      await listService
-        .removeTvShowFromTheList({
-          listId,
-          userId,
-          tvShowId: tvShow.id,
-        })
-        .then(async () => {
-          const listsFetched = await listService.getListsByUserId(userId)
+      await listService.removeTvShowFromTheList({
+        listId,
+        userId,
+        tvShowId: tvShow.id,
+      })
 
-          setLists(listsFetched)
-        })
-        .catch(() => toast(`Erro ao adicionar ${tvShow.title} à lista!`))
+      const listsFetched = await listService.getListsByUserId(userId)
+
+      setLists(listsFetched)
     } catch (error) {
+      toast(`Erro ao adicionar ${tvShow.title} à lista!`)
       console.error(`Erro ao remover item da lista: ${error}`)
     }
   }
@@ -116,6 +125,7 @@ export function useList() {
         ),
       )
     } catch (error) {
+      toast(`Erro ao atualizar a ordem da lista`)
       console.error(`Erro ao atualizar a ordem da lista: ${error}`)
     }
   }

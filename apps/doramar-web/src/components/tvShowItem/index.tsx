@@ -10,7 +10,7 @@ import { EyeIcon } from "../icons/eye"
 import { HeartIcon } from "../icons/heart"
 import { PlusIcon } from "../icons/plus"
 import { PopUpMenu } from "../popup"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { Avatar } from "../avatar"
 
 interface DramaItemProps {
@@ -28,7 +28,7 @@ interface DramaItemProps {
   onMakeTvShowFavoriteFavorite: (tvShow: TvShow) => Promise<void>
   onRate: (tvShowId: string, scaleId: number) => Promise<void>
   initialRating: number
-  isFavorite: boolean
+  favoriteTvShow?: TvShow
 }
 
 const statusColorClassMap: Record<string, string> = {
@@ -46,11 +46,11 @@ export function TVShowItem({
   watchedStatusColor,
   setShowCreateListModal,
   initialRating,
-  isFavorite,
   onMakeTvShowFavoriteFavorite,
   watchedStatus,
   onRate,
   onClickShowCastModalButton,
+  favoriteTvShow
 }: DramaItemProps) {
   const [activePopup, setActivePopup] = useState<{
     id: string | null
@@ -68,6 +68,10 @@ export function TVShowItem({
     handleAddTvShowToList(data)
     setActivePopup({ id: null, type: null })
   }
+
+  const isFavorite = useMemo(() => {
+    return favoriteTvShow?.id === show.id
+  }, [favoriteTvShow])
 
   return (
     <div

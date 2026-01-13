@@ -31,20 +31,21 @@ export function useCommunities() {
     visibility: string
     description?: string
   }) => {
-    if (!userId) return
+    if (!userId) {
+      toast("Erro ao criar comunidade!")
+      return
+    }
     try {
-      communitiesService
-        .createCommunity({
-          name,
-          userId,
-          visibility,
-          description,
-        })
-        .then((newCommunity) =>
-          setCommunities((prev) => [...prev, newCommunity]),
-        )
-        .catch(() => toast("Erro ao criar a comunidade!"))
+      const newCommunity = await communitiesService.createCommunity({
+        name,
+        userId,
+        visibility,
+        description,
+      })
+
+      setCommunities((prev) => [...prev, newCommunity])
     } catch (error) {
+      toast("Erro ao criar a comunidade!")
       console.error(`Erro ao criar comunidade: ${error}`)
     }
   }
@@ -56,20 +57,24 @@ export function useCommunities() {
     communityId: string
     content: string
   }) => {
-    if (!userId) return null
+    if (!userId) {
+      toast("Erro ao criar a post!")
+      return
+    }
 
     try {
-      return communitiesService
-        .createPost({ communityId, content, userId })
-        .then((newPost) => newPost)
-        .catch(() => toast("Erro ao criar a post!"))
+      return communitiesService.createPost({ communityId, content, userId })
     } catch (error) {
+      toast("Erro ao criar a post!")
       console.error(`Erro ao criar post: ${error}`)
     }
   }
 
   const getCommunityPosts = async (communityId: string) => {
-    if (!userId) return
+    if (!userId) {
+      toast("Erro ao buscar posts!")
+      return
+    }
 
     try {
       return await communitiesService.getCommunityPosts(communityId)
@@ -79,7 +84,10 @@ export function useCommunities() {
   }
 
   const getPostsComments = async (postId: string) => {
-    if (!userId) return
+    if (!userId) {
+      toast("Erro ao buscar comentários!")
+      return
+    }
 
     try {
       return await communitiesService.getPostComments(postId)
@@ -94,7 +102,10 @@ export function useCommunities() {
     content: string,
   ) => {
     try {
-      if (!userId) return
+      if (!userId) {
+        toast("Erro ao criar comentário!")
+        return
+      }
 
       return await communitiesService.createComment({
         postId,
@@ -103,6 +114,8 @@ export function useCommunities() {
         userId,
       })
     } catch (error) {
+      toast("Erro ao criar comentário!")
+
       console.error("Erro ao criar comentário!", error)
       return null
     }
@@ -120,7 +133,10 @@ export function useCommunities() {
     type: ReactionType
   }) => {
     try {
-      if (!userId) return
+      if (!userId) {
+        toast("Erro ao criar reação!")
+        return
+      }
 
       return await communitiesService.createReaction({
         postId,
@@ -130,6 +146,8 @@ export function useCommunities() {
         type,
       })
     } catch (error) {
+      toast("Erro ao criar reação!")
+
       console.error("Erro ao criar reações!", error)
       return null
     }
@@ -137,7 +155,10 @@ export function useCommunities() {
 
   const getReactionsByPostId = async (postId: string) => {
     try {
-      if (!userId) return
+      if (!userId) {
+        toast("Erro ao buscar reações!")
+        return
+      }
 
       return await communitiesService.getReactsByPostId(postId)
     } catch (error) {
@@ -150,23 +171,23 @@ export function useCommunities() {
     userId: string,
   ) => {
     try {
-      communitiesService
-        .addMemberOnTheCommunity({ communityId, userId })
-        .then((newMember) => {
-          setCommunities((prev) =>
-            prev.map((community) => {
-              if (community.id !== communityId) return community
+      const newMember = await communitiesService.addMemberOnTheCommunity({
+        communityId,
+        userId,
+      })
+      setCommunities((prev) =>
+        prev.map((community) => {
+          if (community.id !== communityId) return community
 
-              return {
-                ...community,
-                members: [...community.members, newMember],
-              }
-            }),
-          )
-        })
-        .catch((e) => toast("Erro ao adicionar participante"))
+          return {
+            ...community,
+            members: [...community.members, newMember],
+          }
+        }),
+      )
     } catch (error) {
       console.error("Erro ao adicionar participante a comunidade", error)
+      toast("Erro ao adicionar participante")
     }
   }
 
@@ -177,27 +198,24 @@ export function useCommunities() {
     communityId: string
     formData: FormData
   }) => {
-    console.log(formData)
     try {
-      return await communitiesService
-        .uploadCommunityProfilePicture({
+      const communityWithNewAvatar =
+        await communitiesService.uploadCommunityProfilePicture({
           communityId,
           formData,
         })
-        .then((communityWithNewAvatar) => {
-          setCommunities((prev) =>
-            prev.map((community) =>
-              community.id === communityWithNewAvatar.id
-                ? communityWithNewAvatar
-                : community,
-            ),
-          )
-          return communityWithNewAvatar
-        })
-        .catch(() => {
-          toast("Erro ao fazer upload da imagem do perfil da comunidade")
-        })
+
+      setCommunities((prev) =>
+        prev.map((community) =>
+          community.id === communityWithNewAvatar.id
+            ? communityWithNewAvatar
+            : community,
+        ),
+      )
+      return communityWithNewAvatar
     } catch (error) {
+      toast("Erro ao fazer upload da imagem do perfil da comunidade")
+
       console.error(
         "Erro ao fazer upload da imagem do perfil da comunidade",
         error,
@@ -213,29 +231,26 @@ export function useCommunities() {
     formData: FormData
   }) => {
     try {
-      await communitiesService
-        .uploadCommunityCoverPicture({
+      const communityWithNewCoverPicture =
+        await communitiesService.uploadCommunityCoverPicture({
           communityId,
           formData,
         })
-        .then((communityWithNewCoverPicture) => {
-          setCommunities((prev) =>
-            prev.map((community) =>
-              community.id === communityWithNewCoverPicture.id
-                ? communityWithNewCoverPicture
-                : community,
-            ),
-          )
-          return communityWithNewCoverPicture
-        })
-        .catch(() => {
-          toast("Erro ao fazer upload da imagem de capa da comunidade")
-        })
+
+      setCommunities((prev) =>
+        prev.map((community) =>
+          community.id === communityWithNewCoverPicture.id
+            ? communityWithNewCoverPicture
+            : community,
+        ),
+      )
+      return communityWithNewCoverPicture
     } catch (error) {
       console.error(
         "Erro ao fazer upload da imagem de capa da comunidade",
         error,
       )
+      toast("Erro ao fazer upload da imagem de capa da comunidade")
     }
   }
 

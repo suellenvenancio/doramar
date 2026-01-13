@@ -30,7 +30,7 @@ export function HomePage() {
     fetchTvShowsByPage,
     isLoadingTvShowsByPage,
     markTvShowAsFavorite,
-    favoriteTvShows
+    favoriteTvShow
   } = useTvShow()
   const { lists, addTvShowToList, createList } = useList()
   const { user } = useUser()
@@ -210,7 +210,7 @@ export function HomePage() {
                 initialRating={
                   ratings.find((r) => r.tvShow.id === show.id)?.scaleId ?? 0
                 }
-                isFavorite={favoriteTvShows?.id === show.id}
+                favoriteTvShow={favoriteTvShow}
                 onMakeTvShowFavoriteFavorite={markTvShowAsFavorite}
                 onRate={createRating}
                 onClickShowCastModalButton={() => handleCastModalButton(show)}

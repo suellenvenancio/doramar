@@ -42,12 +42,17 @@ export function useUser() {
   const uploadProfilePicture = async (formData: FormData) => {
     try {
       const userId = user?.id
-      if (!userId) return
-      await userService
-        .uploadProfilePicture({ userId, formData })
-        .then((newUser) => setUser(newUser))
-        .catch(() => toast("erro ao fazer upload da foto!"))
+      if (!userId) {
+        toast("erro ao fazer upload da foto!")
+        return
+      }
+      const newUser = await userService.uploadProfilePicture({
+        userId,
+        formData,
+      })
+      setUser(newUser)
     } catch (error) {
+      toast("erro ao fazer upload da foto!")
       console.error("Erro ao atualiza foto do usuário", error)
     }
   }

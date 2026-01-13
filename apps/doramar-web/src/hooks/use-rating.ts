@@ -26,11 +26,14 @@ export function useRating() {
   const createRating = useCallback(
     async (tvShowId: string, scaleId: number) => {
       try {
-        if (!userId) return
-        await ratingService
-          .createRating(userId, tvShowId, scaleId)
-          .catch(() => toast("Erro ao avaliar dorama!"))
+        if (!userId) {
+          toast("Erro ao avaliar dorama!")
+          return
+        }
+        await ratingService.createRating(userId, tvShowId, scaleId)
       } catch (error) {
+        toast("Erro ao avaliar dorama!")
+
         console.error(`Erro ao ao avaliação: ${error}`)
       }
     },
