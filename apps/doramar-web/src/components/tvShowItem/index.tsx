@@ -28,7 +28,7 @@ interface DramaItemProps {
   onMakeTvShowFavoriteFavorite: (tvShow: TvShow) => Promise<void>
   onRate: (tvShowId: string, scaleId: number) => Promise<void>
   initialRating: number
-  favoriteTvShow?: TvShow
+  isFavorite: boolean
 }
 
 const statusColorClassMap: Record<string, string> = {
@@ -50,7 +50,7 @@ export function TVShowItem({
   watchedStatus,
   onRate,
   onClickShowCastModalButton,
-  favoriteTvShow
+  isFavorite
 }: DramaItemProps) {
   const [activePopup, setActivePopup] = useState<{
     id: string | null
@@ -69,10 +69,7 @@ export function TVShowItem({
     setActivePopup({ id: null, type: null })
   }
 
-  const isFavorite = useMemo(() => {
-    return favoriteTvShow?.id === show.id
-  }, [favoriteTvShow])
-
+  
   return (
     <div
       className="flex flex-col md:flex-row items-center md:items-start
@@ -105,7 +102,7 @@ export function TVShowItem({
                 setActivePopup((prev) =>
                   prev.type === ButtonTypeEnum.EYE
                     ? { id: null, type: null }
-                    : { id: show.id, type: ButtonTypeEnum.EYE }
+                    : { id: show.id, type: ButtonTypeEnum.EYE },
                 )
               }
               className={`transition-colors hover:scale-110 mt-1.5 ${
@@ -126,13 +123,15 @@ export function TVShowItem({
           </div>
 
           <IconButton
-            icon={<HeartIcon />}
+            icon={
+              <HeartIcon
+                className={isFavorite ? "fill-red-500 text-red-500" : ""}
+              />
+            }
             onClick={async () => {
               await onMakeTvShowFavoriteFavorite(show)
             }}
-            className={`hover:text-red-500 transition-colors hover:scale-110 ${
-              isFavorite ? "text-red-500" : ""
-            }`}
+            className={`hover:text-red-500 transition-colors hover:scale-110`}
           />
 
           <div className="relative inline-block">
@@ -142,7 +141,7 @@ export function TVShowItem({
                 setActivePopup((prev) =>
                   prev.type === ButtonTypeEnum.PLUS
                     ? { id: null, type: null }
-                    : { id: show.id, type: ButtonTypeEnum.PLUS }
+                    : { id: show.id, type: ButtonTypeEnum.PLUS },
                 )
               }
               className="hover:text-blue-500 transition-colors hover:scale-110"

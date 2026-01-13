@@ -183,10 +183,7 @@ async function addTVShowToFavorites(userId: string, tvShowId: string) {
         tvShowId,
         existentFavoriteTvShow.id,
       )
-      return {
-        ...user,
-        favoriteTvShow: favoriteTvShow.tvShow,
-      }
+      return favoriteTvShow.tvShow
     }
 
     if (
@@ -194,10 +191,7 @@ async function addTVShowToFavorites(userId: string, tvShowId: string) {
       existentFavoriteTvShow?.tvShowId === tvShowId
     ) {
       await tvShowRepository.removeTvShowAsFavorite(existentFavoriteTvShow.id)
-      return {
-        ...user,
-        favoriteTvShow: undefined,
-      }
+      return undefined
     }
 
     const favoriteTvShow = await tvShowRepository.addTVShowToFavorite(
@@ -205,10 +199,7 @@ async function addTVShowToFavorites(userId: string, tvShowId: string) {
       tvShowId,
     )
 
-    return {
-      ...user,
-      favoriteTvShow: favoriteTvShow.tvShow,
-    }
+    return favoriteTvShow.tvShow
   } catch (error) {
     console.error("Error adding TV show to favorites:", error)
     throw error

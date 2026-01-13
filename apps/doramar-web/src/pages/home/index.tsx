@@ -171,6 +171,10 @@ export function HomePage() {
     [setCurrentPage, currentPage],
   )
 
+  const checkTheFavoriteTvShow = useCallback((tvShowId: string) => {
+    return favoriteTvShow?.id === tvShowId
+  }, [favoriteTvShow])
+
   return (
     <Layout
       page="Home"
@@ -196,6 +200,7 @@ export function HomePage() {
         ) : tvShowsToRender.length > 0 ? (
           tvShowsToRender.map((show) => {
             const watchedStatusColor = getStatusColor(watchedTvShows, show.id)
+            const isFavorite = checkTheFavoriteTvShow(show.id)
 
             return (
               <TVShowItem
@@ -210,7 +215,7 @@ export function HomePage() {
                 initialRating={
                   ratings.find((r) => r.tvShow.id === show.id)?.scaleId ?? 0
                 }
-                favoriteTvShow={favoriteTvShow}
+                isFavorite={isFavorite}
                 onMakeTvShowFavoriteFavorite={markTvShowAsFavorite}
                 onRate={createRating}
                 onClickShowCastModalButton={() => handleCastModalButton(show)}
