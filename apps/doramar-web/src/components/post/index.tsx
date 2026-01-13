@@ -14,6 +14,7 @@ import { AngryIcon } from "../icons/angry"
 import { useNavigate } from "react-router-dom" 
 import { TrashIcon } from "../icons/trash"
 import { ConfirmationModal } from "../modal/confirmationModal"
+import { getRelativeTime } from "@/utils/date"
 
 interface PostProps {
   userId: string
@@ -21,7 +22,7 @@ interface PostProps {
   authorProfilePicture?: string
   authorName: string
   authorId: string
-  postedAt?: string
+  postedAt: string
   content: string
   fetchPostComments: (postId: string) => Promise<Comment[] | undefined>
   fetchReactions: (postId: string) => Promise<Reaction[] | undefined> 
@@ -165,7 +166,7 @@ export function PostComponent({
           >
             {authorName}
           </h3>
-          <span className="text-xs text-gray-400">{postedAt}</span>
+          <span className="text-xs text-gray-400">{getRelativeTime(postedAt)}</span>
         </div>
         {userId === authorId && (
           <div>
