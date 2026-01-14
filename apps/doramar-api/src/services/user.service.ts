@@ -85,7 +85,6 @@ async function validateAndCreateUser({
       email,
       username,
       name,
-      password,
       id,
     })
   } catch (error) {

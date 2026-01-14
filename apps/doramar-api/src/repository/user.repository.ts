@@ -48,7 +48,12 @@ async function findByEmail(email: string) {
   return user
 }
 
-async function createUser(data: RegisterUserInput) {
+async function createUser(data: {
+  name: string
+  username: string
+  email: string
+  id: string
+}) {
   return await prisma.users.create({
     data: {
       ...data,
@@ -58,7 +63,7 @@ async function createUser(data: RegisterUserInput) {
 
 async function updateUser(
   id: string,
-  data: Partial<Omit<User, "id" | "createdAt">>
+  data: Partial<Omit<User, "id" | "createdAt">>,
 ) {
   const updatedUser = await prisma.users.update({
     where: { id },
