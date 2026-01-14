@@ -1,7 +1,8 @@
-"use-client" 
+"use-client"
 import type { Member } from "@/types"
- import { MemberCard } from "../memberCart"
- 
+
+import { MemberCard } from "../memberCart"
+
 interface MemberModalProps {
   isOpen: boolean
   onClose: () => void
@@ -9,8 +10,8 @@ interface MemberModalProps {
 }
 
 export function MemberModal({ isOpen, onClose, members }: MemberModalProps) {
-  if (!isOpen) return null 
- 
+  if (!isOpen) return null
+
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[999] flex justify-center items-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">

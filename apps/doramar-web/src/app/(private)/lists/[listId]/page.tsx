@@ -1,85 +1,79 @@
 "use client"
-import { IconButton } from '@/components/button/iconButton';
-import { MenuIcon } from '@/components/icons/menu';
-import { TrashIcon } from '@/components/icons/trash';
-import { Layout } from '@/components/layout';
-import { useList } from '@/hooks/use-list';
-import type { TvShow } from '@/types';
-
-import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-  useSortable,
-  arrayMove,
-  sortableKeyboardCoordinates,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 import {
   closestCenter,
   DndContext,
+  type DragEndEvent,
   KeyboardSensor,
   PointerSensor,
   TouchSensor,
   useSensor,
   useSensors,
-  type DragEndEvent,
-} from '@dnd-kit/core';
+} from "@dnd-kit/core"
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable"
+import { CSS } from "@dnd-kit/utilities"
+import { useParams } from "next/navigation"
+import { useMemo } from "react"
+
+import { IconButton } from "@/components/button/iconButton"
+import { MenuIcon } from "@/components/icons/menu"
+import { TrashIcon } from "@/components/icons/trash"
+import { Layout } from "@/components/layout"
+import { useList } from "@/hooks/use-list"
+import type { TvShow } from "@/types"
 
 export default function ListsDetailsPage() {
-  const [items, setItems] = useState<TvShow[]>([]);
-
-  const { lists, removeTvShowFromTheList, updateListOrder } = useList();
+  const { lists, removeTvShowFromTheList, updateListOrder } = useList()
   const params = useParams()
   const listId = params.listId as string
 
-  const listTvShows = lists.find((list) => list.id === listId)?.tvShows;
-
-  useEffect(() => {
-    if (listTvShows) {
-      setItems(listTvShows);
-    }
-  }, [listTvShows]);
+  const listTvShows = lists.find((list) => list.id === listId)?.tvShows
 
   const removeTvShow = async (tvShow: TvShow, listId: string) => {
-    await removeTvShowFromTheList({ listId, tvShow });
-  };
+    await removeTvShowFromTheList({ listId, tvShow })
+  }
+
+  const items = useMemo(() => {
+    const list = lists.find((list) => list.id === listId)
+    return list?.tvShows ?? []
+  }, [listId, lists])
 
   function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
+    const { active, over } = event
+    if (!over || active.id === over.id) return
 
-    const oldIndex = items.findIndex((i) => i.id === active.id);
-    const newIndex = items.findIndex((i) => i.id === over.id);
+    const oldIndex = items.findIndex((i) => i.id === active.id)
+    const newIndex = items.findIndex((i) => i.id === over.id)
 
-    const newOrder = arrayMove(items, oldIndex, newIndex);
-
-    setItems(newOrder);
+    const newOrder = arrayMove(items, oldIndex, newIndex)
 
     updateListOrder({
       listId: listId!,
       tvShows: newOrder,
-    });
+    })
   }
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8, 
+        distance: 8,
       },
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 250,  
-        tolerance: 5, 
+        delay: 250,
+        tolerance: 5,
       },
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     }),
   )
- 
 
   return (
     <Layout page="Lists">
@@ -122,13 +116,19 @@ export default function ListsDetailsPage() {
 }
 
 interface ListItemProps {
-  tvShow: TvShow;
-  onRemoveTvShow: (tvShow: TvShow, listId: string) => void;
-  listId: string;
+  tvShow: TvShow
+  onRemoveTvShow: (tvShow: TvShow, listId: string) => void
+  listId: string
 }
 function ListItem({ tvShow, onRemoveTvShow, listId }: ListItemProps) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-    useSortable({ id: tvShow.id });
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: tvShow.id })
 
   const style = {
     transform: CSS.Transform.toString(transform),

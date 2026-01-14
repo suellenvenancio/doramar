@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useState } from "react"
+
+import { toast } from "@/components/toast"
 import { tvShowService } from "@/services/tvShow.service"
 import type { TvShow, TvShowWithPagination, WatchedTvShow } from "@/types"
+
 import { useUser } from "./use-user"
-import { toast } from "@/components/toast"
 
 export function useTvShow() {
   const [tvShows, setTvShows] = useState<TvShow[]>([])
@@ -54,7 +56,7 @@ export function useTvShow() {
 
         setWatchedTvShows(fetchedWatchedTvshows)
       } catch (e) {
-        console.error("Erro ao buscar doramas assistidos!")
+        console.error(`Erro ao buscar doramas assistidos: ${e}`)
       }
     }
     fetchWatchedTvShows()
@@ -99,18 +101,15 @@ export function useTvShow() {
     }
   }
 
-  const findFavoriteTvShowByUserId = useCallback(
-    async (userId: string) => {
-      try {
-        console.log(userId)
-        return await tvShowService.findFavoriteTvShowByUserId(userId)
-      } catch (e) {
-        console.error(`Erro ao buscar doramas favoritos: ${e}`)
-        return null
-      }
-    },
-    [userId],
-  )
+  const findFavoriteTvShowByUserId = useCallback(async (userId: string) => {
+    try {
+      console.log(userId)
+      return await tvShowService.findFavoriteTvShowByUserId(userId)
+    } catch (e) {
+      console.error(`Erro ao buscar doramas favoritos: ${e}`)
+      return null
+    }
+  }, [])
 
   const markTvShowAsFavorite = useCallback(
     async (tvShow: TvShow) => {

@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react"
-import type { Community, ReactionTargetType, ReactionType } from "@/types"
-import { communitiesService } from "@/services/communities.service"
-import { useUser } from "./use-user"
+
 import { toast } from "@/components/toast"
+import { communitiesService } from "@/services/communities.service"
+import type { Community, ReactionTargetType, ReactionType } from "@/types"
+
+import { useUser } from "./use-user"
 
 export function useCommunities() {
   const [communities, setCommunities] = useState<Community[]>([])

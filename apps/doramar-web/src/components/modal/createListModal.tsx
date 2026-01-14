@@ -1,11 +1,12 @@
 "use-client"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import z from "zod"
+
+import { CustomButton } from "../button"
 import { IconButton } from "../button/iconButton"
 import { CloseIcon } from "../icons/close"
-import z from "zod"
-import { useForm } from "react-hook-form"
 import { CustomInput } from "../input"
-import { CustomButton } from "../button"
-import { zodResolver } from "@hookform/resolvers/zod"
 
 interface CreateListModalProps {
   isOpen: boolean
@@ -17,30 +18,29 @@ const createListSchema = z.object({
   name: z.string().min(3, "O nome deve ter pelo menos 3 caracteres"),
 })
 
-type FormData = z.infer<typeof createListSchema> 
+type FormData = z.infer<typeof createListSchema>
 
 export function CreateListModal({
   isOpen,
   onClose,
   onCreate,
-}: CreateListModalProps) { 
-const {
-  handleSubmit,
-  control,
-  formState: { isSubmitting },
-} = useForm<FormData>({
-  resolver: zodResolver(createListSchema), 
-})  
+}: CreateListModalProps) {
+  const {
+    handleSubmit,
+    control,
+    formState: { isSubmitting },
+  } = useForm<FormData>({
+    resolver: zodResolver(createListSchema),
+  })
   if (!isOpen) return null
 
-  const onSubmit = async ({name}: FormData) => {
-   
-     try {
+  const onSubmit = async ({ name }: FormData) => {
+    try {
       await onCreate(name)
       onClose()
     } catch (error) {
       console.error(error)
-    } 
+    }
   }
 
   return (

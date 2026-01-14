@@ -1,16 +1,17 @@
 "use client"
 
-import { useForm } from "react-hook-form"
-import { useCallback } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import z from "zod"
-import logo from "@/assets/doramar.png"
-import { useUser } from "@/hooks/use-user"
-import { useRouter } from "next/navigation" 
-import { toast } from "@/components/toast"
-import { CustomInput } from "@/components/input"
-import { CustomButton } from "@/components/button"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
+import { useCallback } from "react"
+import { useForm } from "react-hook-form"
+import z from "zod"
+
+import logo from "@/assets/doramar.png"
+import { CustomButton } from "@/components/button"
+import { CustomInput } from "@/components/input"
+import { toast } from "@/components/toast"
+import { useUser } from "@/hooks/use-user"
 
 const createAccountSchema = z.object({
   name: z.string(),
@@ -33,25 +34,25 @@ export default function CreateAccountComponent() {
     resolver: zodResolver(createAccountSchema),
   })
 
-  const router = useRouter()  
+  const router = useRouter()
 
-  const handleSubmitCreateAccount = useCallback(async (data: FormData) => {
-    try {
-      const newUser = await createAccount(data)
-      if (newUser) {
-        router.push("/login")
-        return
+  const handleSubmitCreateAccount = useCallback(
+    async (data: FormData) => {
+      try {
+        const newUser = await createAccount(data)
+        if (newUser) {
+          router.push("/login")
+          return
+        }
+        toast("Erro ao criar conta!")
+
+        return reset()
+      } catch (error) {
+        console.log(`Erro ao criar usuário, por favor tente novamente:${error}`)
       }
-      toast("Erro ao criar conta!")
-
-      return reset()
-    } catch (error) {
-
-      setError("root", {
-        message: "Erro ao criar usuário, por favor tente novamente!",
-      })
-    }
-  }, [createAccount])
+    },
+    [createAccount, reset, router, setError],
+  )
 
   return (
     <form

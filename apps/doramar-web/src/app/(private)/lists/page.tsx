@@ -1,16 +1,17 @@
-"use client";
+"use client"
 
-import { IconButton } from '@/components/button/iconButton'
-import { CircleIcon } from '@/components/icons/circle'
-import { TrashIcon } from '@/components/icons/trash'
-import { Layout } from '@/components/layout'
-import { ConfirmationModal } from '@/components/modal/confirmationModal'
-import { CreateListModal } from '@/components/modal/createListModal'
-import { useList } from '@/hooks/use-list'
-import { mergeCn } from '@/utils/cn'
-import { useRouter } from 'next/navigation';
-import { useState } from 'react'
- 
+import { useRouter } from "next/navigation"
+import { useState } from "react"
+
+import { IconButton } from "@/components/button/iconButton"
+import { CircleIcon } from "@/components/icons/circle"
+import { TrashIcon } from "@/components/icons/trash"
+import { Layout } from "@/components/layout"
+import { ConfirmationModal } from "@/components/modal/confirmationModal"
+import { CreateListModal } from "@/components/modal/createListModal"
+import { useList } from "@/hooks/use-list"
+import { mergeCn } from "@/utils/cn"
+
 export default function ListsPage() {
   const [showCreateListModal, setShowCreateListModal] = useState(false)
   const { lists, createList, isLoading } = useList()
@@ -53,7 +54,7 @@ export default function ListsPage() {
         </div>
         {isLoading && (
           <div className="flex flex-col items-center justify-center w-full py-24">
-            <CircleIcon className="h-12 w-12 text-pink-600" /> 
+            <CircleIcon className="h-12 w-12 text-pink-600" />
           </div>
         )}
 
@@ -104,7 +105,8 @@ export function ListCard({
   listId,
   onClickInTheList,
 }: ListCardProps) {
-  const [showConfirmationModal, setShowConfirmationModal] = useState<boolean>(false)
+  const [showConfirmationModal, setShowConfirmationModal] =
+    useState<boolean>(false)
   const { deleteList } = useList()
 
   const onRemoveList = async (listId: string) => {

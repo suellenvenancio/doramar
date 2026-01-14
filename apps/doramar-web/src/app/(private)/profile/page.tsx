@@ -1,4 +1,6 @@
 "use client"
+import { type ChangeEvent, useRef, useState } from "react"
+
 import { Avatar } from "@/components/avatar"
 import { HeartIcon } from "@/components/icons/heart"
 import { MovieIcon } from "@/components/icons/movie"
@@ -12,13 +14,12 @@ import { useList } from "@/hooks/use-list"
 import { useRating } from "@/hooks/use-rating"
 import { useTvShow } from "@/hooks/use-tv-shows"
 import { useUser } from "@/hooks/use-user"
-import { useState, useRef, type ChangeEvent } from "react"
 
 export default function MyProfilePage() {
   const { user, uploadProfilePicture } = useUser()
   const { watchedTvShows, favoriteTvShow } = useTvShow()
   const { ratings, createRating } = useRating()
-  const { lists } = useList() 
+  const { lists } = useList()
   const { favoriteActors } = useActor()
 
   return (
@@ -69,7 +70,6 @@ export default function MyProfilePage() {
                       imageUrl={actor.image}
                       title={actor.name}
                       className="rounded-full w-24 h-20 mb-2"
-                       
                     />
                     <p className="text-xs text-center mt-1 line-clamp-2">
                       {actor.name}
@@ -132,7 +132,6 @@ type UserResumeProps = {
   listQtty: number
   uploadProfilePicture: (data: FormData) => void
 }
-
 
 function UserResume({
   profilePicture,

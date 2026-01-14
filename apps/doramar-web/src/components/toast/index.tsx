@@ -1,6 +1,5 @@
-import { ToastContainer, toast as tostify } from "react-toastify"
 import type { ToastOptions } from "react-toastify"
-import "react-toastify/dist/ReactToastify.css"
+import { toast as tostify, ToastContainer } from "react-toastify"
 
 export function toast(message: string, options?: ToastOptions) {
   tostify(message, {

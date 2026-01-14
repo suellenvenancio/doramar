@@ -1,10 +1,12 @@
+import Image from "next/image"
+
 import doramar from "@/assets/doramar.png"
-import { SearchInput } from "../searchInput"
+import { ButtonTypeEnum, type Genre, type Page } from "@/types"
+
 import { IconButton } from "../button/iconButton"
 import { FilterIcon } from "../icons/filter"
-import { ButtonTypeEnum, type Genre, type Page } from "@/types"
 import { PopUpMenu } from "../popup"
-import Image from "next/image"
+import { SearchInput } from "../searchInput"
 
 interface HeaderProps {
   search?: string
@@ -28,7 +30,7 @@ export function Header({
 }: HeaderProps) {
   return (
     <header className="sticky top-0 z-50 grid grid-cols-3 bg-[#FEB5D0] p-2 w-full">
-      <Image className="h-12 w-25 md:w-36" src={doramar} alt="logo"/>
+      <Image className="h-12 w-25 md:w-36" src={doramar} alt="logo" />
 
       {page === "Home" && (
         <div className="grid grid-cols-[180px_1fr] md:grid-cols-[90%_1fr] items-center w-full col-span-2">

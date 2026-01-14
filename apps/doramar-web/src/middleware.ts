@@ -1,5 +1,5 @@
-import { NextResponse, type NextRequest } from "next/server"
 import { jwtDecode } from "jwt-decode"
+import { type NextRequest, NextResponse } from "next/server"
 
 const publicRoutes = [
   { path: "/", whenAuthenticated: "next" },
@@ -42,6 +42,7 @@ export function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL("/", request.url))
       }
     } catch (e) {
+      console.error(e)
       const redirectUrl = request.nextUrl.clone()
       redirectUrl.pathname = REDIRECT_WHEN_NOT_AUTH
 

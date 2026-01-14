@@ -1,5 +1,4 @@
 import type { createUser, User } from "@/types"
-
 import { apiClient } from "@/utils/client"
 
 export const userService = {

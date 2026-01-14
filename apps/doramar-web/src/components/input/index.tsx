@@ -1,26 +1,33 @@
 "use client"
 
+import {
+  type Control,
+  Controller,
+  FieldValues,
+  Path,
+  PathValue,
+} from "react-hook-form"
+
 import { mergeCn } from "@/utils/cn"
-import { Controller, type Control } from "react-hook-form"
-export interface customInputProps {
-  name: string
-  control: Control<any>
+export interface CustomInputProps<T extends FieldValues> {
+  control: Control<T>
+  name: Path<T>
   errorMessage?: string
-  value?: string | number | Date
   type: string
   className?: string
   placeholder?: string
+  value?: PathValue<T, Path<T>>
 }
 
-export function CustomInput({
-  name,
+export function CustomInput<T extends FieldValues>({
   control,
-  value,
-  type,
+  name,
   className,
-  errorMessage,
   placeholder,
-}: customInputProps) {
+  type,
+  errorMessage,
+  value,
+}: CustomInputProps<T>) {
   return (
     <>
       <Controller

@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useState } from "react"
-import { useUser } from "./use-user"
+
+import { toast } from "@/components/toast"
 import { ratingService } from "@/services/ratings.service"
 import type { RatingWithTvShow } from "@/types"
-import { toast } from "@/components/toast"
+
+import { useUser } from "./use-user"
 
 export function useRating() {
   const [ratings, setRatings] = useState<RatingWithTvShow[]>([])

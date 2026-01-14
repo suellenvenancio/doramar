@@ -1,16 +1,16 @@
 "use client"
 
-import { useForm } from "react-hook-form"
-import { useCallback } from "react"
-import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useRouter } from "next/navigation"
+import { useCallback } from "react"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
 
+import { useUser } from "@/hooks/use-user"
+
+import { CustomButton } from "../button"
 import { CustomInput } from "../input"
 import { TextButton } from "../textButton"
-import { CustomButton } from "../button"
-import { useUser } from "@/hooks/use-user"
-import { useRouter } from "next/navigation" // Alterado: Importe do Next.js
-import { toast } from "../toast"
 
 export const loginSchema = z.object({
   email: z.string().email("E-mail inválido"), // Ajustado: z.string().email()
@@ -30,19 +30,15 @@ export default function LoginComponent() {
   })
 
   const { login } = useUser()
-  const router = useRouter()  
+  const router = useRouter()
 
   const handleLoginSubmit = useCallback(
     async (data: FormData) => {
-      try {
-        await login(data.email, data.password)
-        router.push("/")  
-        reset()
-      } catch (error) {
-        toast("Erro ao efetuar login, verifique dados e tente novamente!")
-      }
+      await login(data.email, data.password)
+      router.push("/")
+      reset()
     },
-    [login, router, reset],  
+    [login, router, reset],
   )
 
   return (

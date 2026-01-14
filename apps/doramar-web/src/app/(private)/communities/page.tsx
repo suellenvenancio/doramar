@@ -1,12 +1,13 @@
-"use client";
+"use client"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
+
 import { Avatar } from "@/components/avatar"
 import { CircleIcon } from "@/components/icons/circle"
 import { Layout } from "@/components/layout"
 import { CreateCommunityModal } from "@/components/modal/createCommunityModal"
 import { useCommunities } from "@/hooks/use-communities"
 import { mergeCn } from "@/utils/cn"
-import { useState } from "react"
-import { useRouter } from "next/navigation"
 
 export default function CommunitiesPage() {
   const [showCreateCommunityModal, setShowCreateCommunityModal] =

@@ -1,4 +1,4 @@
-import { mergeCn } from "@/utils/cn";
+import { mergeCn } from "@/utils/cn"
 
 export function EyeOffIcon({ className }: { className?: string }) {
   return (

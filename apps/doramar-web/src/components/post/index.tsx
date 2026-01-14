@@ -1,27 +1,30 @@
 "use client"
 
-import { useCallback, useEffect, useState, type ReactElement } from "react"
-import { Avatar } from "../avatar"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useRouter } from "next/navigation"
+import { type ReactElement, useCallback, useEffect, useState } from "react"
+import { useForm } from "react-hook-form"
+import z from "zod"
+
 import {
-  ReactionTargetType,
   type Comment,
   type Reaction,
+  ReactionTargetType,
   type ReactionType,
 } from "@/types"
-import z from "zod"
-import { CustomInput } from "../input"
-import { useForm } from "react-hook-form"
+import { getRelativeTime } from "@/utils/date"
+
+import { Avatar } from "../avatar"
 import { IconButton } from "../button/iconButton"
-import { SendIcon } from "../icons/send"
+import { AngryIcon } from "../icons/angry"
 import { CommentIcon } from "../icons/comment"
-import { LikeIcon } from "../icons/like"
 import { HeartIcon } from "../icons/heart"
 import { LaughtIcon } from "../icons/laught"
-import { AngryIcon } from "../icons/angry"
-import { useRouter } from "next/navigation"
+import { LikeIcon } from "../icons/like"
+import { SendIcon } from "../icons/send"
 import { TrashIcon } from "../icons/trash"
+import { CustomInput } from "../input"
 import { ConfirmationModal } from "../modal/confirmationModal"
-import { getRelativeTime } from "@/utils/date"
 
 interface PostProps {
   userId: string
@@ -52,11 +55,11 @@ interface PostProps {
   handleDeleteComment: (commentId: string, postId: string) => Promise<void>
 }
 
-const createComment = z.object({
+const createCommentSchema = z.object({
   content: z.string().min(3, "O nome deve ter pelo menos 3 caracteres"),
 })
 
-type FormData = z.infer<typeof createComment>
+type FormData = z.infer<typeof createCommentSchema>
 
 export function PostComponent({
   userId,
@@ -86,10 +89,13 @@ export function PostComponent({
   const [showDeletePostModal, setShowDeletePostModal] = useState(false)
   const [showDeleteCommentModal, setShowDeleteCommentModal] = useState(false)
 
-  const { reset, control, handleSubmit, setError } = useForm<FormData>({})
+  const { control, handleSubmit } = useForm<FormData>({
+    resolver: zodResolver(createCommentSchema),
+  })
 
   const router = useRouter()
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const reactions = [
     { type: "LIKE", emoji: <LikeIcon />, label: "Curtir", color: "green-500" },
     { type: "LOVE", emoji: <HeartIcon />, label: "Amei", color: "red-500" },
@@ -117,7 +123,7 @@ export function PostComponent({
         if (reactionDetails) setCurrentReaction(reactionDetails)
       }
     })
-  }, [postId])
+  }, [fetchPostComments, fetchReactions, postId, reactions, userId])
 
   const handleAddComment = useCallback(
     async ({ content }: FormData) => {
@@ -126,7 +132,7 @@ export function PostComponent({
           newComment && setAllComments((prev) => [...prev, newComment]),
       )
     },
-    [postId],
+    [communityId, onAddComment, postId],
   )
 
   const handleReacts = async (react: {
@@ -208,6 +214,7 @@ export function PostComponent({
           <button
             className={`flex items-center gap-2 text-${currentReaction.color} hover:text-[#D63384] transition-colors font-semibold py-3`}
           >
+            <p>Você e + {allReactions.length}</p>
             <span className="text-xl">{currentReaction.emoji}</span>
             <span className="text-sm">{currentReaction.type}</span>
           </button>

@@ -1,17 +1,19 @@
-import type { TvShow } from '@/types';
-import { mergeCn } from '@/utils/cn';
+import type { TvShow } from "@/types"
+import { mergeCn } from "@/utils/cn"
 
-type PopUpType = 'Status' | 'Gêneros' | 'Listas' | '';
+type PopUpType = "Status" | "Gêneros" | "Listas" | ""
 
 interface PopUpProps {
-  type: PopUpType;
-  items: any[];
-  onClick: (data: any) => void;
-  title: string;
-  tvShow?: TvShow;
-  className?: string;
-  hasCheckBoxes?: boolean;
-  selectedGenres?: string[];
+  type: PopUpType
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  items: any[]
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onClick: (data: any) => void
+  title: string
+  tvShow?: TvShow
+  className?: string
+  hasCheckBoxes?: boolean
+  selectedGenres?: string[]
 }
 
 export function PopUpMenu({

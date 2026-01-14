@@ -1,9 +1,11 @@
 import React from "react"
-import { Header } from "../header"
-import { SideBar } from "../sidebar"
-import { MobileFooterMenu } from "../mobileFooterMenu"
+
 import { ButtonTypeEnum, type Genre, type Page } from "@/types"
 import { mergeCn } from "@/utils/cn"
+
+import { Header } from "../header"
+import { MobileFooterMenu } from "../mobileFooterMenu"
+import { SideBar } from "../sidebar"
 
 interface LayoutProps {
   children: React.ReactNode
@@ -34,7 +36,7 @@ export function Layout({
         className,
       )}
     >
-      <Header {...{ page, ...headerProps && headerProps }} />
+      <Header {...{ page, ...(headerProps && headerProps) }} />
       <div className="flex md:flex-row w-full md:items-start items-center mt-4">
         <SideBar />
         <main className="mb-12 w-full">{children}</main>

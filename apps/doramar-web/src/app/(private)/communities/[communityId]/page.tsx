@@ -1,10 +1,20 @@
 "use client"
+import { zodResolver } from "@hookform/resolvers/zod"
+import Image from "next/image"
+import { useParams, useRouter } from "next/navigation"
+import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react"
+import { Controller, useForm } from "react-hook-form"
+import z from "zod"
+
 import { Avatar } from "@/components/avatar"
 import { CustomButton } from "@/components/button"
+import { IconButton } from "@/components/button/iconButton"
 import { CommunityIcon } from "@/components/icons/community"
+import { TrashIcon } from "@/components/icons/trash"
 import { Layout } from "@/components/layout"
 import { Members } from "@/components/membersComponents"
 import { AddMemberModal } from "@/components/modal/addMemberModal"
+import { ConfirmationModal } from "@/components/modal/confirmationModal"
 import { MemberModal } from "@/components/modal/membersModal"
 import { PostComponent } from "@/components/post"
 import { SessionTitle } from "@/components/sessonTitle"
@@ -12,16 +22,13 @@ import { TextButton } from "@/components/textButton"
 import { toast } from "@/components/toast"
 import { useCommunities } from "@/hooks/use-communities"
 import { useUser } from "@/hooks/use-user"
-import {  CommunityRole, CommunityVisibility, type Post, type ReactionTargetType, type ReactionType } from "@/types"
- 
-import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react"
-import { Controller, useForm } from "react-hook-form"
-import { useRouter, useParams } from "next/navigation"
-import z from "zod"  
-import { IconButton } from "@/components/button/iconButton" 
-import { TrashIcon } from "@/components/icons/trash"
-import { ConfirmationModal } from "@/components/modal/confirmationModal"
-import Image from "next/image"
+import {
+  CommunityRole,
+  CommunityVisibility,
+  type Post,
+  type ReactionTargetType,
+  type ReactionType,
+} from "@/types"
 
 const createPostSchema = z.object({
   content: z.string().min(3, "O nome deve ter pelo menos 3 caracteres"),
@@ -51,7 +58,7 @@ export default function CommunityDetails() {
   const userId = user?.id
 
   const fileAvatarRef = useRef<HTMLInputElement>(null)
-  const fileCoverRef = useRef<HTMLInputElement>(null) 
+  const fileCoverRef = useRef<HTMLInputElement>(null)
 
   const [posts, setPosts] = useState<Post[]>([])
   const [modalIsOpen, setModalIsOpen] = useState(false)
@@ -59,10 +66,12 @@ export default function CommunityDetails() {
   const [isUploadingCover, setIsUploadingCover] = useState(false)
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
   const [showCommunityModal, setShowCommunityModal] = useState(false)
-  
+
   const community = communities?.find((c) => c.id === communityId)
 
-  const { reset, control, handleSubmit } = useForm<FormData>({})
+  const { reset, control, handleSubmit } = useForm<FormData>({
+    resolver: zodResolver(createPostSchema),
+  })
   const router = useRouter()
 
   useEffect(() => {
@@ -71,7 +80,7 @@ export default function CommunityDetails() {
         if (!communityId) return
         const fetchedPosts = await getCommunityPosts(communityId)
         if (fetchedPosts) {
-            const sortedPosts = [...fetchedPosts].sort((a, b) => {
+          const sortedPosts = [...fetchedPosts].sort((a, b) => {
             return (
               new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
             )
@@ -83,7 +92,7 @@ export default function CommunityDetails() {
       }
     }
     fetchPosts()
-  }, [communityId]) 
+  }, [communityId])
 
   const onCreatePost = async ({ content }: FormData) => {
     if (!communityId) {
@@ -93,21 +102,20 @@ export default function CommunityDetails() {
 
     const newPost = await createPost({ communityId, content })
 
-    if (!newPost) return 
-    
+    if (!newPost) return
+
     setPosts((prev) => [newPost, ...prev])
-    reset({content: ""})
+    reset({ content: "" })
   }
 
   const fetchPostComments = async (postId: string) => {
     try {
-      return await getPostsComments(postId) 
-      
+      return await getPostsComments(postId)
     } catch (error) {
       console.error("Failed to fetch communities:", error)
     }
   }
-  
+
   const textAreaRef = useRef<HTMLTextAreaElement>(null)
 
   const handleInput = () => {
@@ -126,59 +134,68 @@ export default function CommunityDetails() {
     postId: string
     targetType: ReactionTargetType
     type: ReactionType
-    }) => {
-    if (!communityId) return  
+  }) => {
+    if (!communityId) return
     return await createReaction({
       postId,
       communityId,
       targetType,
-      type 
+      type,
     })
   }
 
   const fetchPostReactions = async (postId: string) => {
     try {
-      return await getReactionsByPostId(postId) 
-      
+      return await getReactionsByPostId(postId)
     } catch (error) {
       console.error("Failed to fetch communities:", error)
     }
   }
-  
-  const userIsCommunityMember = community?.members.some(m => m.userId === user?.id)
 
-  const userIsOwnerOrModerator = community?.owner.id === user?.id || community?.members.some(m => m.userId === user?.id && (m.role === CommunityRole.ADMIN || m.role === CommunityRole.MODERATOR))
-  
+  const userIsCommunityMember = community?.members.some(
+    (m) => m.userId === user?.id,
+  )
+
+  const userIsOwnerOrModerator =
+    community?.owner.id === user?.id ||
+    community?.members.some(
+      (m) =>
+        m.userId === user?.id &&
+        (m.role === CommunityRole.ADMIN || m.role === CommunityRole.MODERATOR),
+    )
+
   const communityVisibility = community?.visibility
 
-  const commuityIsPrivateOrSecret = communityVisibility === CommunityVisibility.PRIVATE || communityVisibility === CommunityVisibility.SECRET
- 
-  const onSearchMember = useCallback(
-  async (email: string) => {
-      return await findUserByEmail(email) 
-    },
-    [],
-  )
-  
+  const commuityIsPrivateOrSecret =
+    communityVisibility === CommunityVisibility.PRIVATE ||
+    communityVisibility === CommunityVisibility.SECRET
+
+  const onSearchMember = useCallback(async (email: string) => {
+    return await findUserByEmail(email)
+  }, [])
+
   const onAddMember = useCallback(async (userId: string) => {
     if (!communityId) return toast("Erro ao adicionar membro!")
 
     await addMemberOnTheCommunity(communityId, userId)
-    setShowAddMemberModal(false) 
-  }, []) 
+    setShowAddMemberModal(false)
+  }, [])
 
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
- 
+
     const formData = new FormData()
     formData.append("file", file)
- 
+
     try {
-      if(!communityId) return toast("Erro ao fazer upload da imagem!")
+      if (!communityId) return toast("Erro ao fazer upload da imagem!")
       setIsUploadingAvatar(true)
 
-      await uploadCommunityProfilePicture({formData, communityId:communityId})
+      await uploadCommunityProfilePicture({
+        formData,
+        communityId: communityId,
+      })
     } catch (error) {
       console.error(error)
       toast("Erro ao fazer upload da imagem")
@@ -188,56 +205,64 @@ export default function CommunityDetails() {
       if (fileAvatarRef.current) fileAvatarRef.current.value = ""
     }
   }
-  
-    const handleCoverFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0]
-      if (!file) return
 
-      const formData = new FormData()
-      formData.append("file", file)
-      try {
+  const handleCoverFileChange = async (
+    event: ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    const formData = new FormData()
+    formData.append("file", file)
+    try {
       if (!communityId) return toast("Erro ao fazer upload da imagem!")
 
-        setIsUploadingCover(true)
+      setIsUploadingCover(true)
 
-        await uploadCommunityCoverPicture({
-          formData,
-          communityId: communityId,
-        })
-      } catch (error) {
-        console.error(error)
-        toast("Erro ao fazer upload da imagem")
-      } finally {
-        setIsUploadingCover(false)
+      await uploadCommunityCoverPicture({
+        formData,
+        communityId: communityId,
+      })
+    } catch (error) {
+      console.error(error)
+      toast("Erro ao fazer upload da imagem")
+    } finally {
+      setIsUploadingCover(false)
 
-        if (fileCoverRef.current) fileCoverRef.current.value = ""
-      }
+      if (fileCoverRef.current) fileCoverRef.current.value = ""
     }
-  
+  }
+
   const handleDeleteCommunity = useCallback(async (communityId: string) => {
     await deleteCommunity(communityId).then(() => {
       router.push("/communities")
     })
   }, [])
-  
-  const handleDeletePost = useCallback(async (postId: string) => {
-    if (!communityId) {
-      toast("Erro ao deletar o post!")
-      return
-    }
-    
-    await deletePost(postId, communityId)
-    setPosts(prev => prev.filter(post => post.id !== postId))
-    }, [ communityId])
-  
-  const handleDeleteComment = useCallback(async (commentId: string, postId: string) => {
-    if (!communityId) {
-      toast("Erro ao deletar o comentário!")
-      return
-    }
-    
-    await deleteComment({ commentId, communityId, postId })
-    }, [ communityId])
+
+  const handleDeletePost = useCallback(
+    async (postId: string) => {
+      if (!communityId) {
+        toast("Erro ao deletar o post!")
+        return
+      }
+
+      await deletePost(postId, communityId)
+      setPosts((prev) => prev.filter((post) => post.id !== postId))
+    },
+    [communityId],
+  )
+
+  const handleDeleteComment = useCallback(
+    async (commentId: string, postId: string) => {
+      if (!communityId) {
+        toast("Erro ao deletar o comentário!")
+        return
+      }
+
+      await deleteComment({ commentId, communityId, postId })
+    },
+    [communityId],
+  )
   return (
     <Layout page="Communities" className="min-w-100">
       <div className="w-full p-4 grid grid-cols-3 gap-6 items-start">
@@ -395,6 +420,7 @@ export default function CommunityDetails() {
                       }}
                       onInput={() => {
                         handleInput()
+                        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
                         field.onChange
                       }}
                       rows={1}

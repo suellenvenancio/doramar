@@ -1,4 +1,7 @@
-"use client";
+"use client"
+
+import { useParams } from "next/navigation"
+import { type ChangeEvent, useEffect, useRef, useState } from "react"
 
 import { Avatar } from "@/components/avatar"
 import { HeartIcon } from "@/components/icons/heart"
@@ -13,10 +16,15 @@ import { useList } from "@/hooks/use-list"
 import { useRating } from "@/hooks/use-rating"
 import { useTvShow } from "@/hooks/use-tv-shows"
 import { useUser } from "@/hooks/use-user"
-import { Actor, TvShow, type List, type Rating, type User, type WatchedTvShow } from "@/types"
+import {
+  Actor,
+  type List,
+  type Rating,
+  TvShow,
+  type User,
+  type WatchedTvShow,
+} from "@/types"
 import { mergeCn } from "@/utils/cn"
-import { useState, useRef, type ChangeEvent, useEffect } from "react"
-import { useParams } from "next/navigation"
 
 export default function ProfilePage() {
   const [user, setUser] = useState<User | undefined>()
@@ -25,17 +33,20 @@ export default function ProfilePage() {
   const [ratings, setRatings] = useState<Rating[]>([])
   const [favoriteTvShows, setFavoriteTvShows] = useState<TvShow | undefined>()
   const [favoriteActors, setFavoriteActors] = useState<Actor[]>([])
-  
+
   const { findUserById } = useUser()
   const { getWatchedTvShowsByUserId, findFavoriteTvShowByUserId } = useTvShow()
   const { getRatingsByUserId, createRating } = useRating()
-  const { getListsByUserId } = useList() 
-  const {  findFavoriteActorsByUserId } = useActor()
+  const { getListsByUserId } = useList()
+  const { findFavoriteActorsByUserId } = useActor()
   const params = useParams()
   const userId = params.userId as string
-  
-  const fetchUserData = async (userId: string) => {
-    try {
+
+  useEffect(() => {
+    if (!userId) return
+
+    const fetchUserData = async (userId: string) => {
+      try {
         const [
           user,
           watchedTvShowsFetched,
@@ -58,19 +69,23 @@ export default function ProfilePage() {
         setRatings(fetchedRatings ?? [])
         setFavoriteTvShows(favTvShow || undefined)
         setFavoriteActors(favActors)
-    } catch (error) {
-      console.error(`Erro aos buscar dados do usuário: ${error}`)
+      } catch (error) {
+        console.error(`Erro aos buscar dados do usuário: ${error}`)
+      }
     }
-  }
-  
-  useEffect(() => {
-    if (!userId) return
 
     fetchUserData(userId)
-   
-  }, [userId])
+  }, [
+    findFavoriteActorsByUserId,
+    findFavoriteTvShowByUserId,
+    findUserById,
+    getListsByUserId,
+    getRatingsByUserId,
+    getWatchedTvShowsByUserId,
+    userId,
+  ])
 
-   return (
+  return (
     <Layout page="Profile">
       <div className="w-full p-6 bg-[#FDFFFE] min-h-full rounded-3xl">
         <UserResume
@@ -182,7 +197,6 @@ type UserResumeProps = {
   isMyProfilePage: boolean
 }
 
-
 function UserResume({
   profilePicture,
   name,
@@ -197,7 +211,7 @@ function UserResume({
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleAvatarClick = () => {
-    if(!isMyProfilePage) return
+    if (!isMyProfilePage) return
     fileInputRef.current?.click()
   }
 
@@ -228,7 +242,6 @@ function UserResume({
           `relative cursor-pointer hover:opacity-80 transition-all ${
             isUploading ? "animate-pulse" : ""
           }`,
-            
         )}
         onClick={handleAvatarClick}
         title="Clique para alterar a foto"

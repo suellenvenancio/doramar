@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useState } from "react"
+
+import { toast } from "@/components/toast"
 import { listService } from "@/services/lists.service"
 import type { List, ListWithTvShows, TvShow } from "@/types"
+
 import { useUser } from "./use-user"
-import { toast } from "@/components/toast"
 
 export function useList() {
   const [lists, setLists] = useState<ListWithTvShows[]>([])
@@ -20,7 +22,7 @@ export function useList() {
         const fetchedLists = await listService.getListsByUserId(userId)
         setLists(fetchedLists)
       } catch (error) {
-        console.log("Erro ao buscar listas!")
+        console.log(`Erro ao buscar listas: ${error}`)
       } finally {
         setIsLoading(false)
       }
@@ -68,21 +70,24 @@ export function useList() {
     [userId],
   )
 
-  const deleteList = useCallback(async (listId: string) => {
-    try {
-      await listService.deleteList(listId)
-      if (!userId) {
-        toast("Erro ao buscar listas!")
-        return
-      }
-      const fetchedLists = await listService.getListsByUserId(userId)
+  const deleteList = useCallback(
+    async (listId: string) => {
+      try {
+        await listService.deleteList(listId)
+        if (!userId) {
+          toast("Erro ao buscar listas!")
+          return
+        }
+        const fetchedLists = await listService.getListsByUserId(userId)
 
-      setLists(fetchedLists)
-    } catch (error) {
-      toast("Erro ao excluir lista!")
-      console.error(`Error ao remover lista: ${error}`)
-    }
-  }, [])
+        setLists(fetchedLists)
+      } catch (error) {
+        toast("Erro ao excluir lista!")
+        console.error(`Error ao remover lista: ${error}`)
+      }
+    },
+    [userId],
+  )
 
   const removeTvShowFromTheList = async ({
     listId,

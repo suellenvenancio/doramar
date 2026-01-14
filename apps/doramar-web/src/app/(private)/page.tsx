@@ -1,25 +1,24 @@
 "use client"
-import { useTvShow } from "@/hooks/use-tv-shows"
+import { useCallback, useMemo, useState } from "react"
 
-import { useList } from "@/hooks/use-list"
-import { TVShowItem } from "@/components/tvShowItem"
-import { useCallback, useEffect, useState } from "react"
+import { useGenres } from "@//hooks/use-genres"
+import { CircleIcon } from "@/components/icons/circle"
+import { Layout } from "@/components/layout"
+import { CastModal } from "@/components/modal/castModal"
 import { CreateListModal } from "@/components/modal/createListModal"
-import { useUser } from "@/hooks/use-user"
+import { TVShowItem } from "@/components/tvShowItem"
+import { useActor } from "@/hooks/use-actor"
+import { useList } from "@/hooks/use-list"
 import { useRating } from "@/hooks/use-rating"
+import { useTvShow } from "@/hooks/use-tv-shows"
 import {
-  ButtonTypeEnum,
   type Actor,
+  ButtonTypeEnum,
   type List,
   type TvShow,
   type WatchedTvShow,
 } from "@/types"
-import { CastModal } from "@/components/modal/castModal"
-import { useActor } from "@/hooks/use-actor"
-import { useGenres } from "@//hooks/use-genres"
-import { Layout } from "@/components/layout"
 import { mergeCn } from "@/utils/cn"
-import { CircleIcon } from "@/components/icons/circle"
 
 export default function HomePage() {
   const {
@@ -31,10 +30,9 @@ export default function HomePage() {
     fetchTvShowsByPage,
     isLoadingTvShowsByPage,
     markTvShowAsFavorite,
-    favoriteTvShow
+    favoriteTvShow,
   } = useTvShow()
   const { lists, addTvShowToList, createList } = useList()
-  const { user } = useUser()
   const { ratings, createRating } = useRating()
   const { markActorAsFavorite, favoriteActors } = useActor()
   const { genres } = useGenres()
@@ -45,16 +43,29 @@ export default function HomePage() {
   const [search, setSearch] = useState("")
   const [activePopup, setActivePopup] = useState<ButtonTypeEnum | null>(null)
   const [selectedGenres, setSelectedGenres] = useState<string[]>([])
-  const [tvShowsToRender, setTvShowsToRender] = useState<TvShow[]>([])
-  const [currentPage, setCurrentPage] = useState<number>()
-  const totalPages = tvShowsByPage?.totalPages
 
-  useEffect(() => {
-    setTvShowsToRender(tvShowsByPage?.results ?? [])
-    setCurrentPage(tvShowsByPage?.page ?? 1)
-  }, [tvShowsByPage])
+  const tvShowsToRender = useMemo(() => {
+    let results = [...(tvShowsByPage?.results ?? [])]
 
- 
+    const searchQuery = search.trim().toLowerCase()
+    if (searchQuery) {
+      results = tvShows.filter((show) =>
+        show.title.toLowerCase().includes(searchQuery),
+      )
+    }
+
+    if (selectedGenres.length > 0) {
+      results = results.filter((show) =>
+        show.genres?.some((genre) => selectedGenres.includes(genre.id)),
+      )
+    }
+
+    return results
+  }, [tvShowsByPage?.results, tvShows, search, selectedGenres])
+
+  const currentPage = tvShowsByPage?.page ?? 1
+  const totalPages = tvShowsByPage?.totalPages ?? 0
+
   const getStatusColor = useCallback(
     (watchedTvShows: WatchedTvShow[], tvShowId: string) => {
       const status = watchedTvShows.find(
@@ -71,7 +82,7 @@ export default function HomePage() {
           return "gray"
       }
     },
-    [watchedTvShows],
+    [],
   )
 
   const handleWatchStatusChange = async ({
@@ -107,74 +118,38 @@ export default function HomePage() {
     await markActorAsFavorite(actor.id)
   }
 
-  const onSelectGenre = useCallback(
-    (genreId: string) => {
-      const nextGenres = selectedGenres.includes(genreId)
-        ? selectedGenres.filter((id) => id !== genreId)
-        : [...selectedGenres, genreId]
-
-      setSelectedGenres(nextGenres)
-
-      if (nextGenres.length > 0) {
-        const showsToFilter = tvShows.filter((tvShow) =>
-          tvShow.genres?.some((tvGenre) => nextGenres.includes(tvGenre.id)),
-        )
-        setTvShowsToRender(showsToFilter)
-      } else {
-        setTvShowsToRender(tvShowsByPage?.results ?? [])
-      }
-    },
-    [selectedGenres, tvShows, setSelectedGenres, setTvShowsToRender], //
-  )
-
   const onActivePopUp = () => {
     setActivePopup((prev) =>
       prev === ButtonTypeEnum.FILTER ? null : ButtonTypeEnum.FILTER,
     )
   }
 
-  const onChange = useCallback(
-    (value: string) => {
-      setSearch(value)
+  const onChange = useCallback((value: string) => {
+    setSearch(value)
+  }, [])
 
-      let filteredResults = [...tvShows]
+  const onSelectGenre = useCallback((genreId: string) => {
+    setSelectedGenres((prev) =>
+      prev.includes(genreId)
+        ? prev.filter((id) => id !== genreId)
+        : [...prev, genreId],
+    )
+  }, [])
 
-      const searchQuery = value.trim().toLowerCase()
-      if (searchQuery) {
-        filteredResults = filteredResults.filter((show) =>
-          show.title.toLowerCase().includes(searchQuery),
-        )
-      } else { 
-        filteredResults = tvShowsByPage?.results ?? []
-      }
-
-      if (selectedGenres.length > 0) {
-        filteredResults = filteredResults.filter((show) =>
-          show.genres?.some((genre) => selectedGenres.includes(genre.id)),
-        )
-      }
-
-      setTvShowsToRender(filteredResults)
-    },
-    [tvShows, tvShowsByPage, selectedGenres],
-  )  
-  
   const onPageChange = useCallback(
     async (newPage: number) => {
-      setCurrentPage(newPage)
-
       await fetchTvShowsByPage(newPage, 20)
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      })
+      window.scrollTo({ top: 0, behavior: "smooth" })
     },
-    [setCurrentPage, currentPage],
+    [fetchTvShowsByPage],
   )
 
-  const checkTheFavoriteTvShow = useCallback((tvShowId: string) => {
-    return favoriteTvShow?.id === tvShowId
-  }, [favoriteTvShow])
+  const checkTheFavoriteTvShow = useCallback(
+    (tvShowId: string) => {
+      return favoriteTvShow?.id === tvShowId
+    },
+    [favoriteTvShow],
+  )
 
   return (
     <Layout
@@ -228,7 +203,6 @@ export default function HomePage() {
             <p className="text-lg font-semibold text-[#6E5A6B]">
               Não existe nenhum dorama disponível!
             </p>
-            
           </div>
         )}
       </div>

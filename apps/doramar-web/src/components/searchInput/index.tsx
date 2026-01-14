@@ -1,5 +1,6 @@
-import { mergeCn } from "@/utils/cn"
 import type { ChangeEvent } from "react"
+
+import { mergeCn } from "@/utils/cn"
 
 interface SearchInputProps {
   value: string
@@ -21,7 +22,7 @@ export function SearchInput({ value, onChange, className }: SearchInputProps) {
       onChange={handleChange}
       className={mergeCn(
         `px-4 py-2 border rounded-lg focus:ring-2 focus:ring-pink-500 border-pink-500 outline-none transition-all ml-12`,
-        className
+        className,
       )}
     />
   )

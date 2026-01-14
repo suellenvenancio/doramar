@@ -1,10 +1,11 @@
 import { useRouter } from "next/navigation"
+
 import { Avatar } from "../avatar"
 
 interface MemberPros {
   id: string
   profilePicture?: string
-  name: string 
+  name: string
   isAddMemberModal: boolean
 }
 

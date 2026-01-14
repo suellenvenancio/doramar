@@ -1,4 +1,4 @@
-import { mergeCn } from "@/utils/cn";
+import { mergeCn } from "@/utils/cn"
 
 export function CommentIcon({ className }: { className?: string }) {
   return (
@@ -11,7 +11,7 @@ export function CommentIcon({ className }: { className?: string }) {
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className={mergeCn("w-5 h-5", className)} 
+      className={mergeCn("w-5 h-5", className)}
     >
       <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
     </svg>

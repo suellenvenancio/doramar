@@ -1,6 +1,7 @@
+import { useState } from "react"
+
 import { StarIcon } from "@/components/icons/star"
 import { mergeCn } from "@/utils/cn"
-import { useState } from "react"
 
 interface StarRatingProps {
   totalStars?: number
@@ -28,7 +29,7 @@ export function StarRating({
   const [hover, setHover] = useState<number | null>(null)
 
   const handleClick = async (ratingValue: number) => {
-    if(!isMyProfilePage) return null
+    if (!isMyProfilePage) return null
     setRating(ratingValue)
 
     await onRate(tvShowId, ratingValue)

@@ -5,17 +5,6 @@ export interface createUser {
   password: string
 }
 
-interface FavoriteTvShow {
-  id: string
-  createdAt: Date
-  title: string
-  synopsis: string
-  cast: string
-  poster: string
-  premiereDate: Date
-  originalName: string
-}
-
 export interface User {
   id: string
   name: string

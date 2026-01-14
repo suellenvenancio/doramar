@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useState } from "react"
-import { useUser } from "./use-user"
-import { actorService } from "@/services/actors.service "
+
 import { toast } from "@/components/toast"
+import { actorService } from "@/services/actors.service "
 import { Actor } from "@/types"
+
+import { useUser } from "./use-user"
 
 export function useActor() {
   const { user } = useUser()
@@ -10,24 +12,21 @@ export function useActor() {
 
   const userId = user?.id
 
-  const findFavoriteActorsByUserId = useCallback(
-    async (userId: string) => {
-      try {
-        return await actorService.findFavoriteActorsByUserId(userId)
-      } catch (e) {
-        console.error(`Erro ao buscar atores favoritos: ${e}`)
-        return []
-      }
-    },
-    [userId],
-  )
+  const findFavoriteActorsByUserId = useCallback(async (userId: string) => {
+    try {
+      return await actorService.findFavoriteActorsByUserId(userId)
+    } catch (e) {
+      console.error(`Erro ao buscar atores favoritos: ${e}`)
+      return []
+    }
+  }, [])
 
   useEffect(() => {
     if (!userId) return
     findFavoriteActorsByUserId(userId).then((actors) => {
       setFavoriteActors(actors)
     })
-  }, [userId])
+  }, [findFavoriteActorsByUserId, userId])
 
   const markActorAsFavorite = useCallback(
     async (actorId: string) => {

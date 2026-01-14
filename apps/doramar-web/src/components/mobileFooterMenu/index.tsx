@@ -1,15 +1,16 @@
 "use-client"
 
-import { HomeIcon } from "../icons/home"
-import { FolderIcon } from "../icons/folder"
+import { usePathname, useRouter } from "next/navigation"
+
 import { CommunityIcon } from "../icons/community"
-import { ProfileIcon } from "../icons/profile" 
-import { useRouter, usePathname } from "next/navigation"
-  
+import { FolderIcon } from "../icons/folder"
+import { HomeIcon } from "../icons/home"
+import { ProfileIcon } from "../icons/profile"
+
 export function MobileFooterMenu() {
   const router = useRouter()
-  const pathname = usePathname() 
-  
+  const pathname = usePathname()
+
   return (
     <nav
       className="

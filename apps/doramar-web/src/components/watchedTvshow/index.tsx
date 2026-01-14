@@ -1,3 +1,5 @@
+import { mergeCn } from "@/utils/cn"
+
 import { StarRating } from "../button/starRating"
 
 interface TvShowCardProps {
@@ -35,9 +37,14 @@ export function WatchedTvShowComponent({
   }
 
   return (
-    <div className="flex-shrink-0 w-40 flex flex-col gap-2 group cursor-pointer  ">
+    <div
+      className={mergeCn(
+        "flex-shrink-0 w-40 flex flex-col gap-2 group cursor-pointer",
+        className,
+      )}
+    >
       <div className="relative w-full aspect-[2/3] rounded-xl overflow-hidden shadow-lg transition-transform duration-300 group-hover:scale-105">
-        <img src={image} alt={title} className="w-full h-full object-cover" /> 
+        <img src={image} alt={title} className="w-full h-full object-cover" />
         <div
           className={`
           absolute top-2 right-2 

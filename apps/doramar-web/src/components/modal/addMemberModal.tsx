@@ -1,12 +1,15 @@
 "use-client"
 
+import { zodResolver } from "@hookform/resolvers/zod"
 import { useState } from "react"
+import { useForm } from "react-hook-form"
+import z from "zod"
+
+import type { User } from "@/types"
+
+import { CustomButton } from "../button"
 import { IconButton } from "../button/iconButton"
 import { CloseIcon } from "../icons/close"
-import { CustomButton } from "../button"
-import type { User } from "@/types"
-import z from "zod"
-import { useForm } from "react-hook-form"
 import { CustomInput } from "../input"
 import { MemberCard } from "../memberCart"
 
@@ -35,7 +38,9 @@ export function AddMemberModal({
     handleSubmit,
     control,
     formState: { isLoading },
-  } = useForm<FormData>()
+  } = useForm<FormData>({
+    resolver: zodResolver(addMemberSchema),
+  })
 
   if (!isOpen) return null
 

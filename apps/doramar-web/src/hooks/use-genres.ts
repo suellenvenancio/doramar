@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+
 import { genreService } from "@/services/genres.service"
 import type { Genre } from "@/types"
 

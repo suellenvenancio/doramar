@@ -1,5 +1,6 @@
-import type { Genre } from "../types"
 import { apiClient } from "@/utils/client"
+
+import type { Genre } from "../types"
 
 export const genreService = {
   async fetchGenre(): Promise<Genre[]> {

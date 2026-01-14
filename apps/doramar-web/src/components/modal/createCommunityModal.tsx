@@ -1,15 +1,17 @@
 "use-client"
 
-import { CommunityVisibility } from "@/types"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
 import z from "zod"
+
+import { CommunityVisibility } from "@/types"
+
+import { CustomButton } from "../button"
 import { IconButton } from "../button/iconButton"
 import { CloseIcon } from "../icons/close"
 import { CustomInput } from "../input"
-import { toast } from "../toast"
-import { CustomButton } from "../button"
 import { TextButton } from "../textButton"
+import { toast } from "../toast"
 
 interface CreateListModalProps {
   onClose: () => void
@@ -53,7 +55,7 @@ export function CreateCommunityModal({
       onClose()
       return reset()
     } catch (error) {
-      toast("Erro ao criar comunidade!")
+      toast(`Erro ao criar comunidade: ${error}`)
     }
   }
 

@@ -1,18 +1,17 @@
-"use client";
-
-import { CustomButton } from "@/components/button"
-import { CustomInput } from "@/components/input"
-import logo from "@/assets/doramar.png"
+"use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
+import Image from "next/image"
+import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import z from "zod"
+
+import logo from "@/assets/doramar.png"
+import { CustomButton } from "@/components/button"
+import { CustomInput } from "@/components/input"
+import { toast } from "@/components/toast"
 import { auth } from "@/firebase.config"
 import { AuthService } from "@/services/auth.service"
-import Image from "next/image"
-import { useRouter } from "next/navigation";
-import { toast } from "@/components/toast";
-
 
 export const forgotPasswordSchema = z.object({
   email: z.email(),
@@ -29,17 +28,19 @@ export default function ForgotPassword() {
     resolver: zodResolver(forgotPasswordSchema),
   })
 
-    const router = useRouter()  
+  const router = useRouter()
 
   const onSubmit = async ({ email }: FormData) => {
     try {
       const authService = new AuthService(auth)
       await authService.resetPassword(email)
-      toast("As intruções de redefinição de senha foram enviadas para seu email!")
+      toast(
+        "As intruções de redefinição de senha foram enviadas para seu email!",
+      )
       router.push("/login")
     } catch (e) {
       toast("erro ao enviar redefinição!")
-      console.error("Erro ao enviar o reset de senha!")
+      console.error(`Erro ao enviar o reset de senha: ${e}`)
     }
   }
 

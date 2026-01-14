@@ -1,17 +1,18 @@
+import { useState } from "react"
+
 import {
   ButtonTypeEnum,
   type List,
   type ListWithTvShows,
   type TvShow,
 } from "../../types"
-import { StarRating } from "../button/starRating"
+import { Avatar } from "../avatar"
 import { IconButton } from "../button/iconButton"
+import { StarRating } from "../button/starRating"
 import { EyeIcon } from "../icons/eye"
 import { HeartIcon } from "../icons/heart"
 import { PlusIcon } from "../icons/plus"
 import { PopUpMenu } from "../popup"
-import { useMemo, useState } from "react"
-import { Avatar } from "../avatar"
 
 interface DramaItemProps {
   show: TvShow
@@ -50,7 +51,7 @@ export function TVShowItem({
   watchedStatus,
   onRate,
   onClickShowCastModalButton,
-  isFavorite
+  isFavorite,
 }: DramaItemProps) {
   const [activePopup, setActivePopup] = useState<{
     id: string | null
@@ -69,7 +70,6 @@ export function TVShowItem({
     setActivePopup({ id: null, type: null })
   }
 
-  
   return (
     <div
       className="flex flex-col md:flex-row items-center md:items-start

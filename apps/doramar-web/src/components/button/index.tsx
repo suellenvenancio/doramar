@@ -1,4 +1,5 @@
 import { mergeCn } from "@/utils/cn"
+
 import { CircleIcon } from "../icons/circle"
 
 interface customButtonProps {
@@ -18,7 +19,7 @@ export function CustomButton({
     <button
       className={mergeCn(
         "bg-pink-600 text-white w-full rounded flex items-center justify-center disabled:bg-pink-300 p-4",
-        className
+        className,
       )}
       onClick={onClick}
     >

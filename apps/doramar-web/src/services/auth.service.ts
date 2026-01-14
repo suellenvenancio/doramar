@@ -1,13 +1,13 @@
 import {
+  type Auth,
+  deleteUser,
+  EmailAuthProvider,
   onAuthStateChanged,
+  reauthenticateWithCredential,
+  sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signOut,
-  sendPasswordResetEmail,
-  EmailAuthProvider,
-  reauthenticateWithCredential,
   updatePassword,
-  deleteUser,
-  type Auth,
   type User,
   type UserCredential,
 } from "firebase/auth"
