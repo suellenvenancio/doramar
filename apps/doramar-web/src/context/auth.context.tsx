@@ -1,11 +1,18 @@
-import { createContext, useState, useCallback, type ReactNode, useEffect } from "react"
+"use client";
+
+import {
+  createContext,
+  useState,
+  useCallback,
+  type ReactNode,
+  useEffect,
+} from "react"
 import type { User } from "@/types"
 import { userService } from "@/services/user.service"
 import { AuthService } from "@/services/auth.service"
 import { auth } from "@/firebase.config"
-import { useNavigate } from "react-router-dom"
-import { CircleIcon } from "@/components/icons/circle"
- 
+import Cookies from "js-cookie"
+
 export interface IAuthContextData {
   login: (email: string, password: string) => Promise<User | null>
   user: User | null
@@ -18,7 +25,7 @@ interface IProviderData {
 }
 
 export const AuthContext = createContext<IAuthContextData | undefined>(
-  undefined
+  undefined,
 )
 
 export function AuthProvider({ children }: IProviderData) {
@@ -27,12 +34,14 @@ export function AuthProvider({ children }: IProviderData) {
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
-      console.log(firebaseUser)
-       if (firebaseUser) { 
+   
+      if (firebaseUser) {
         const userData = await userService.findUserByEmail(firebaseUser.email!)
+        Cookies.set("appToken", await firebaseUser.getIdToken())
         setUser(userData)
       } else {
         setUser(null)
+        Cookies.remove("appToken")
       }
       setIsLoading(false)
     })
@@ -43,20 +52,16 @@ export function AuthProvider({ children }: IProviderData) {
   const login = useCallback(async (email: string, password: string) => {
     try {
       const authService = new AuthService(auth)
-      await authService.signIn(
-          email,
-          password
-      ).then(async(userCredential) => {
+      await authService.signIn(email, password).then(async (userCredential) => {
         const userData = await userService.findUserByEmail(email)
-        localStorage.setItem("appToken", await userCredential.user.getIdToken())
+
+        const token = await userCredential.user.getIdToken()
+        Cookies.set("appToken", token, { expires: 7 })
         setUser(userData)
       })
-     
       return user
     } catch (error) {
-      console.error("Login error:", error)
-      setUser(null)
-      localStorage.removeItem("appToken")
+       setUser(null)
       throw new Error("Error on get the user")
     }
   }, [])

@@ -102,6 +102,7 @@ export function useTvShow() {
   const findFavoriteTvShowByUserId = useCallback(
     async (userId: string) => {
       try {
+        console.log(userId)
         return await tvShowService.findFavoriteTvShowByUserId(userId)
       } catch (e) {
         console.error(`Erro ao buscar doramas favoritos: ${e}`)

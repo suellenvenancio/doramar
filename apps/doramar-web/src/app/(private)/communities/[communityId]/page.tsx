@@ -1,3 +1,4 @@
+"use client"
 import { Avatar } from "@/components/avatar"
 import { CustomButton } from "@/components/button"
 import { CommunityIcon } from "@/components/icons/community"
@@ -15,11 +16,12 @@ import {  CommunityRole, CommunityVisibility, type Post, type ReactionTargetType
  
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react"
 import { Controller, useForm } from "react-hook-form"
-import { useNavigate, useParams } from "react-router-dom"
+import { useRouter, useParams } from "next/navigation"
 import z from "zod"  
 import { IconButton } from "@/components/button/iconButton" 
 import { TrashIcon } from "@/components/icons/trash"
 import { ConfirmationModal } from "@/components/modal/confirmationModal"
+import Image from "next/image"
 
 const createPostSchema = z.object({
   content: z.string().min(3, "O nome deve ter pelo menos 3 caracteres"),
@@ -27,7 +29,9 @@ const createPostSchema = z.object({
 
 type FormData = z.infer<typeof createPostSchema>
 
-export function CommunityDetails() {
+export default function CommunityDetails() {
+  const params = useParams()
+  const communityId = params.communityId as string
   const {
     communities,
     createPost,
@@ -43,7 +47,6 @@ export function CommunityDetails() {
     deletePost,
     deleteComment,
   } = useCommunities()
-  const { communityId } = useParams()
   const { user, findUserByEmail } = useUser()
   const userId = user?.id
 
@@ -60,7 +63,7 @@ export function CommunityDetails() {
   const community = communities?.find((c) => c.id === communityId)
 
   const { reset, control, handleSubmit } = useForm<FormData>({})
-  const navigate = useNavigate()
+  const router = useRouter()
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -213,7 +216,7 @@ export function CommunityDetails() {
   
   const handleDeleteCommunity = useCallback(async (communityId: string) => {
     await deleteCommunity(communityId).then(() => {
-      navigate("/communities")
+      router.push("/communities")
     })
   }, [])
   
@@ -239,23 +242,27 @@ export function CommunityDetails() {
     <Layout page="Communities" className="min-w-100">
       <div className="w-full p-4 grid grid-cols-3 gap-6 items-start">
         <div className="col-span-3 md:col-span-2 flex flex-col gap-6">
-          <div className="relative mt-4">
+          <div className="relative mt-4 w-full">
             <div
-              onClick={() => fileCoverRef.current?.click()}
-              className="max-w-dvw min-w-88"
+              onClick={() =>
+                userIsOwnerOrModerator && fileCoverRef.current?.click()
+              }
+              className="relative h-48 w-full cursor-pointer group"
             >
               {community?.coverUrl ? (
-                <img
+                <Image
                   src={community.coverUrl}
                   alt="cover"
-                  className="h-42 w-full bg-cover absolute -top-10 rounded-xl"
+                  fill
+                  className="object-cover rounded-xl"
+                  priority
                 />
               ) : (
-                <div className="h-42 w-full bg-cover absolute -top-10 bg-pink-600 rounded-xl flex items-center justify-center" />
+                <div className="h-full w-full bg-pink-600 rounded-xl flex items-center justify-center" />
               )}
               {isUploadingCover && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-full">
-                  <span className="text-white text-xs font-bold">...</span>
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center rounded-xl text-white">
+                  Carregando...
                 </div>
               )}
             </div>
@@ -267,11 +274,11 @@ export function CommunityDetails() {
               onChange={handleCoverFileChange}
             />
 
-            <div className="relative mt-21 w-full bg-[#FEF3F8] rounded-xl shadow-sm border border-pink-100 p-4">
+            <div className="relative mt-[-40px] bg-white rounded-xl shadow-md border border-gray-100 p-6 w-full">
               <div className="flex flex-row items-center gap-2">
-                <div className="flex flex-row gap-72 m-4">
+                <div className="relative -mt-20">
                   <div
-                    className={`absolute -top-21 left-4 ${isUploadingAvatar ? "animate-pulse" : ""} cursor-pointer`}
+                    className={`cursor-pointer hover:opacity-90 transition${isUploadingAvatar ? "animate-pulse" : ""}`}
                     onClick={
                       userIsOwnerOrModerator
                         ? () => fileAvatarRef.current?.click()
@@ -282,7 +289,7 @@ export function CommunityDetails() {
                     <Avatar
                       title={community?.name ?? ""}
                       imageUrl={community?.avatarUrl}
-                      className="h-42 w-36 shadow-lg rounded-xl"
+                      className="top h-40 w-36 shadow-lg rounded-xl"
                     />
                     {isUploadingAvatar && (
                       <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-full">
@@ -299,7 +306,7 @@ export function CommunityDetails() {
                     accept="image/*"
                     onChange={handleFileChange}
                   />
-                  <div className="mt-18">
+                  <div className="mt-4">
                     <p className="text-xl md:text-2xl mb-2 font-bold">
                       {community?.name}
                     </p>
@@ -334,7 +341,7 @@ export function CommunityDetails() {
                     <CustomButton
                       name={"add membro"}
                       loading={false}
-                      className="w-40 rounded-xl border border-pink-600 px-4 py-2 text-sm font-medium text-white h-11 bg-pink-600"
+                      className="w-30 md:w-40 rounded-xl border border-pink-600 px-4 py-2 text-sm font-medium text-white h-11 bg-pink-600"
                       onClick={() => setShowAddMemberModal(true)}
                     />
                   )}
@@ -342,9 +349,9 @@ export function CommunityDetails() {
                   {!userIsCommunityMember &&
                     communityVisibility === CommunityVisibility.PUBLIC && (
                       <CustomButton
-                        name={"+ entrar"}
+                        name={"entrar"}
                         loading={false}
-                        className="w-40 rounded-xl border border-pink-600 px-4 py-2 text-sm font-medium text-white bg-pink-600 transition h-11"
+                        className="w-20 md:w-40 rounded-xl border border-pink-600 px-4 py-2 text-sm font-medium text-white bg-pink-600 transition h-11"
                         onClick={() =>
                           communityId
                             ? addMemberOnTheCommunity(
@@ -359,8 +366,8 @@ export function CommunityDetails() {
                   <CustomButton
                     onClick={() => setModalIsOpen(true)}
                     loading={false}
-                    name="ver participantes"
-                    className="w-40 rounded-xl border bg-white border-pink-600 px-4 py-2 text-sm font-medium text-pink-600 transition h-11 md:hidden"
+                    name="membros"
+                    className="w-20 md:w-40 rounded-xl border bg-white border-pink-600  text-sm font-medium text-pink-600 transition h-11 md:hidden"
                   />
                 </div>
               </div>

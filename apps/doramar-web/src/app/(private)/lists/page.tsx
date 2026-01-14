@@ -1,3 +1,5 @@
+"use client";
+
 import { IconButton } from '@/components/button/iconButton'
 import { CircleIcon } from '@/components/icons/circle'
 import { TrashIcon } from '@/components/icons/trash'
@@ -6,13 +8,13 @@ import { ConfirmationModal } from '@/components/modal/confirmationModal'
 import { CreateListModal } from '@/components/modal/createListModal'
 import { useList } from '@/hooks/use-list'
 import { mergeCn } from '@/utils/cn'
+import { useRouter } from 'next/navigation';
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-
-export function ListsPage() {
+ 
+export default function ListsPage() {
   const [showCreateListModal, setShowCreateListModal] = useState(false)
   const { lists, createList, isLoading } = useList()
-  const navigate = useNavigate()
+  const router = useRouter()
 
   const onCreateList = async (name: string) => {
     await createList(name)
@@ -73,7 +75,7 @@ export function ListsPage() {
                 name={list.name ?? ""}
                 total={list.tvShows.length}
                 onClickInTheList={() => {
-                  navigate(`/list/${list.id}`)
+                  router.push(`/lists/${list.id}`)
                 }}
               />
             ))}

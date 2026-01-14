@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom"
+import { useRouter } from "next/navigation"
 import { Avatar } from "../avatar"
 
 interface MemberPros {
@@ -14,7 +14,7 @@ export function MemberCard({
   name,
   isAddMemberModal,
 }: MemberPros) {
-  const navigate = useNavigate()
+  const route = useRouter()
 
   return (
     <div
@@ -23,7 +23,7 @@ export function MemberCard({
     >
       <div
         className="flex items-center gap-4"
-        onClick={() => !isAddMemberModal && navigate(`/profile/${id}`)}
+        onClick={() => !isAddMemberModal && route.push(`/profile/${id}`)}
       >
         <Avatar
           imageUrl={profilePicture}

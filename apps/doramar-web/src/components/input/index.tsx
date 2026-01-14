@@ -1,3 +1,5 @@
+"use client"
+
 import { mergeCn } from "@/utils/cn"
 import { Controller, type Control } from "react-hook-form"
 export interface customInputProps {
@@ -26,7 +28,7 @@ export function CustomInput({
           <input
             className={mergeCn(
               "border-2 border-solid rounded-md border-black p-3 w-92   text-black",
-              className
+              className,
             )}
             placeholder={placeholder}
             onChange={onChange}

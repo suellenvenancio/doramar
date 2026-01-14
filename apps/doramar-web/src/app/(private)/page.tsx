@@ -1,3 +1,4 @@
+"use client"
 import { useTvShow } from "@/hooks/use-tv-shows"
 
 import { useList } from "@/hooks/use-list"
@@ -20,7 +21,7 @@ import { Layout } from "@/components/layout"
 import { mergeCn } from "@/utils/cn"
 import { CircleIcon } from "@/components/icons/circle"
 
-export function HomePage() {
+export default function HomePage() {
   const {
     tvShows,
     watchedStatus,

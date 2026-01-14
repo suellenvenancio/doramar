@@ -1,10 +1,11 @@
-import React, { useState } from "react"
+"use-client"
 import { IconButton } from "../button/iconButton"
 import { CloseIcon } from "../icons/close"
 import z from "zod"
 import { useForm } from "react-hook-form"
 import { CustomInput } from "../input"
 import { CustomButton } from "../button"
+import { zodResolver } from "@hookform/resolvers/zod"
 
 interface CreateListModalProps {
   isOpen: boolean
@@ -23,8 +24,13 @@ export function CreateListModal({
   onClose,
   onCreate,
 }: CreateListModalProps) { 
-    const {handleSubmit, control, formState: {isLoading}} = useForm<FormData>()
-  
+const {
+  handleSubmit,
+  control,
+  formState: { isSubmitting },
+} = useForm<FormData>({
+  resolver: zodResolver(createListSchema), 
+})  
   if (!isOpen) return null
 
   const onSubmit = async ({name}: FormData) => {
@@ -66,17 +72,17 @@ export function CreateListModal({
             />
           </div>
 
-          <div className="flex justify-end gap-3 mt-2"> 
+          <div className="flex justify-end gap-3 mt-2">
             <CustomButton
               name="Cancelar"
-              loading={isLoading}
+              loading={isSubmitting}
               onClick={onClose}
               className="px-4 py-2 text-sm font-semibold text-pink-600 bg-gray-100 rounded-lg transition-colors"
             />
 
             <CustomButton
               name="Criar"
-              loading={isLoading}
+              loading={isSubmitting}
               className="px-4 py-2 text-sm font-semibold text-white bg-pink-600 hover:bg-pink-700 disabled:bg-pink-300 rounded-lg shadow-sm transition-all flex items-center gap-2"
             />
           </div>

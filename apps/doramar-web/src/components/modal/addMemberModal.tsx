@@ -1,3 +1,5 @@
+"use-client"
+
 import { useState } from "react"
 import { IconButton } from "../button/iconButton"
 import { CloseIcon } from "../icons/close"
@@ -16,11 +18,10 @@ interface addMemberModalProps {
 }
 
 const addMemberSchema = z.object({
-  email:  z.email()
+  email: z.email(),
 })
 
 type FormData = z.infer<typeof addMemberSchema>
-
 
 export function AddMemberModal({
   isOpen,
@@ -41,14 +42,13 @@ export function AddMemberModal({
   const onSubmit = async ({ email }: FormData) => {
     try {
       const fetchedUser = await onSearchMember(email)
- 
+
       if (!fetchedUser) {
         setShowMessage(true)
         return
       }
       setUser(fetchedUser)
       setShowMessage(false)
-
     } catch (error) {
       console.error(error)
     }

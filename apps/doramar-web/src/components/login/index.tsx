@@ -1,53 +1,48 @@
+"use client"
+
 import { useForm } from "react-hook-form"
 import { useCallback } from "react"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { AuthService } from "@/services/auth.service"
 
 import { CustomInput } from "../input"
 import { TextButton } from "../textButton"
 import { CustomButton } from "../button"
 import { useUser } from "@/hooks/use-user"
-import { useNavigate } from "react-router-dom"
+import { useRouter } from "next/navigation" // Alterado: Importe do Next.js
 import { toast } from "../toast"
- 
+
 export const loginSchema = z.object({
-  email: z.email(),
-  password: z.string().min(6),
+  email: z.string().email("E-mail inválido"), // Ajustado: z.string().email()
+  password: z.string().min(6, "A senha deve ter no mínimo 6 caracteres"),
 })
 
-type FormData = z.infer<typeof loginSchema> 
+type FormData = z.infer<typeof loginSchema>
 
-export function LoginComponent() {
+export default function LoginComponent() {
   const {
     control,
     handleSubmit,
-    setError,
     reset,
-    formState: { isSubmitting, errors },
+    formState: { isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(loginSchema),
   })
+
   const { login } = useUser()
-  const navigate = useNavigate()
+  const router = useRouter()  
 
   const handleLoginSubmit = useCallback(
-    async (data: { email: string; password: string }) => {
+    async (data: FormData) => {
       try {
-  
-          await login(
-            data.email,
-            data.password
-          )
-      
-          navigate("/home")  
-          return reset() 
-        
+        await login(data.email, data.password)
+        router.push("/")  
+        reset()
       } catch (error) {
         toast("Erro ao efetuar login, verifique dados e tente novamente!")
       }
     },
-    [setError, reset]
+    [login, router, reset],  
   )
 
   return (
@@ -60,26 +55,26 @@ export function LoginComponent() {
         control={control}
         placeholder="e-mail"
         type="email"
-        className="w-full md:w-100  px-4 py-4 border border-pink-500 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none transition-all"
+        className="w-full md:w-96 px-4 py-4 border border-pink-500 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none transition-all"
       />
       <CustomInput
         name="password"
         control={control}
         placeholder="senha"
         type="password"
-        className="w-full md:w-100 px-6 py-4 border border-pink-500 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none transition-all"
+        className="w-full md:w-96 px-6 py-4 border border-pink-500 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none transition-all"
       />
-      <div className="flex flex-row justify-between w-full md:w-100  mb-2">
+      <div className="flex flex-row justify-between w-full md:w-96 mb-2">
         <TextButton
           name="Cadastre-se"
-          onClick={() => navigate("/create-account")}
+          onClick={() => router.push("/create-account")}
         />
         <TextButton
           name="Esqueci a senha"
-          onClick={() => navigate("/forgot-password")}
+          onClick={() => router.push("/forgot-password")}
         />
       </div>
-      <CustomButton name="Login" loading={isSubmitting} className="md:w-100 " />
+      <CustomButton name="Login" loading={isSubmitting} className="md:w-96 " />
     </form>
   )
 }

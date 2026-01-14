@@ -1,3 +1,5 @@
+"use-client"
+
 import { CommunityVisibility } from "@/types"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"

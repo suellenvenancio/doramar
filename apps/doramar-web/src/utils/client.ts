@@ -1,56 +1,44 @@
+"use client"
+
 import type { ResponseType } from "@/types"
-import { Auth } from "@firebase/auth"
 import axios, {
-  type AxiosInstance,
+  AxiosInstance,
   type AxiosRequestConfig,
   type AxiosResponse,
-  type InternalAxiosRequestConfig,
 } from "axios"
+import { Auth } from "firebase/auth"
+import Cookies from "js-cookie"
+
 import { auth } from "@/firebase.config"
 
 export class AxiosWrapper {
   private instance: AxiosInstance
 
-  constructor(firebaseAuth: Auth) {
+  constructor(private firebaseAuth: Auth) {
     this.instance = axios.create({
-      baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000",
+      baseURL: process.env.NEXT_PUBLIC_API_URL,
       withCredentials: true,
-      headers: {
-        "Content-Type": "application/json",
-      },
     })
 
-    this.instance.interceptors.request.use(
-      async (config: InternalAxiosRequestConfig) => {
-        const user = firebaseAuth.currentUser
+    this.instance.interceptors.request.use(async (config) => {
+      let token = await this.getValidToken()
 
-        if (user) {
-          const token = await user.getIdToken()
-          if (config.headers) {
-            config.headers.Authorization = `Bearer ${token}`
-          }
-        }
-
-        if (config.data instanceof FormData) {
-          delete config.headers["Content-Type"]
-        }
-
-        return config
-      },
-      (error) => Promise.reject(error),
-    )
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`
+      }
+      return config
+    })
 
     this.instance.interceptors.response.use(
       (response) => response,
       async (error) => {
         const originalRequest = error.config
 
-        if (error.response?.status === 403 && !originalRequest._retry) {
+        if (error.response?.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true
-          const user = firebaseAuth.currentUser
+          const newToken = await this.getValidToken(true)
 
-          if (user) {
-            const newToken = await user.getIdToken(true)
+          if (newToken) {
             originalRequest.headers.Authorization = `Bearer ${newToken}`
             return this.instance(originalRequest)
           }
@@ -58,6 +46,19 @@ export class AxiosWrapper {
         return Promise.reject(error)
       },
     )
+  }
+
+  private async getValidToken(forceRefresh = false): Promise<string | null> {
+    const user = this.firebaseAuth.currentUser
+
+    if (user) {
+      const token = await user.getIdToken(forceRefresh)
+
+      Cookies.set("appToken", token, { expires: 1 / 24 })
+      return token
+    }
+
+    return Cookies.get("appToken") || null
   }
 
   public async get<T>(url: string, config?: AxiosRequestConfig): Promise<T> {

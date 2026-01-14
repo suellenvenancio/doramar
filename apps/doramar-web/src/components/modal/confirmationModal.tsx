@@ -1,9 +1,4 @@
-import type { Actor } from "@/types"
-import { HeartIcon } from "../icons/heart"
-import { Avatar } from "../avatar"
-import { on } from "events"
-
-interface ConfirmationModalProps {
+ interface ConfirmationModalProps {
   isOpen: boolean
   onClose: () => void 
   onClick: (id: string) => void

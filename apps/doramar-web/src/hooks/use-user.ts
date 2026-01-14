@@ -28,13 +28,14 @@ export function useUser() {
     username: string
   }) => {
     try {
-      await userService.createUser({
+      return await userService.createUser({
         name: name,
         email: email,
         username: username,
         password: password,
       })
     } catch (error) {
+      toast("erro ao criar usuário!")
       console.error("Erro ao criar usuário", error)
     }
   }

@@ -3,12 +3,12 @@ import { CommunityIcon } from "../icons/community"
 import { FolderIcon } from "../icons/folder"
 import { HomeIcon } from "../icons/home"
 import { ProfileIcon } from "../icons/profile"
-import { useNavigate } from "react-router-dom"
-import { mergeCn } from "@/utils/cn"
+ import { mergeCn } from "@/utils/cn"
+import { useRouter } from "next/navigation"
 
 export function SideBar() {
-  const navigate = useNavigate()
-
+  const router = useRouter()
+  
   return (
     <aside className="hidden md:flex w-72 h-[calc(100vh-6rem)] sticky top-20 px-4">
       <div className="flex flex-col justify-start items-start bg-[#FEEEF5] rounded-2xl p-4">
@@ -16,23 +16,23 @@ export function SideBar() {
           icon={<HomeIcon />}
           title={"Home"}
           className="pr-16"
-          onClick={() => navigate("/home")}
+          onClick={() => router.push("/")}
         />
         <SideBarItem
           icon={<FolderIcon />}
           title={"Minhas Listas"}
-          onClick={() => navigate("/lists")}
+          onClick={() => router.push("/lists")}
         />
         <SideBarItem
           icon={<CommunityIcon />}
           title={"Comunidades"}
-          onClick={() => navigate("/communities")}
+          onClick={() => router.push("/communities")}
         />
         <SideBarItem
           icon={<ProfileIcon />}
           title={"Perfil"}
           className="pr-16 "
-          onClick={() => navigate("/profile")}
+          onClick={() => router.push("/profile")}
         />
       </div>
     </aside>

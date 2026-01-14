@@ -1,3 +1,5 @@
+"use client";
+
 import { Avatar } from "@/components/avatar"
 import { HeartIcon } from "@/components/icons/heart"
 import { MovieIcon } from "@/components/icons/movie"
@@ -14,9 +16,9 @@ import { useUser } from "@/hooks/use-user"
 import { Actor, TvShow, type List, type Rating, type User, type WatchedTvShow } from "@/types"
 import { mergeCn } from "@/utils/cn"
 import { useState, useRef, type ChangeEvent, useEffect } from "react"
-import { useParams } from "react-router-dom"
+import { useParams } from "next/navigation"
 
-export function ProfilePage() {
+export default function ProfilePage() {
   const [user, setUser] = useState<User | undefined>()
   const [watchedTvShows, setWatchedTvShows] = useState<WatchedTvShow[]>([])
   const [lists, setLists] = useState<List[]>([])
@@ -29,7 +31,8 @@ export function ProfilePage() {
   const { getRatingsByUserId, createRating } = useRating()
   const { getListsByUserId } = useList() 
   const {  findFavoriteActorsByUserId } = useActor()
-  const { userId } = useParams()
+  const params = useParams()
+  const userId = params.userId as string
   
   const fetchUserData = async (userId: string) => {
     try {

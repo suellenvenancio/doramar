@@ -38,6 +38,7 @@ export const tvShowService = {
   },
 
   async findFavoriteTvShowByUserId(userId: string): Promise<TvShow> {
+    console.log(userId, "****")
     return await apiClient.get(`/tvShows/favorite/user/${userId}`)
   },
 

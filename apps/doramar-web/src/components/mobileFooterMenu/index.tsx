@@ -1,12 +1,14 @@
+"use-client"
+
 import { HomeIcon } from "../icons/home"
 import { FolderIcon } from "../icons/folder"
 import { CommunityIcon } from "../icons/community"
-import { ProfileIcon } from "../icons/profile"
-import { useLocation, useNavigate } from "react-router-dom"
+import { ProfileIcon } from "../icons/profile" 
+import { useRouter, usePathname } from "next/navigation"
   
 export function MobileFooterMenu() {
-  const navigate = useNavigate()
-  const location = useLocation() 
+  const router = useRouter()
+  const pathname = usePathname() 
   
   return (
     <nav
@@ -19,38 +21,38 @@ export function MobileFooterMenu() {
         flex justify-between
         rounded-t-3xl                   
         shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]
-       "
+      "
     >
       <FooterItem
         icon={<HomeIcon />}
         label="Home"
-        active={location.pathname.startsWith("/home")}
+        active={pathname === "/"}
         onClick={() => {
-          navigate("/home")
+          router.push("/")
         }}
       />
       <FooterItem
         icon={<FolderIcon />}
-        active={location.pathname.startsWith("/lists")}
+        active={pathname.startsWith("/lists")}
         label="Minhas listas"
         onClick={() => {
-          navigate("/lists")
+          router.push("/lists")
         }}
       />
       <FooterItem
         icon={<CommunityIcon />}
         label="Comunidade"
-        active={location.pathname.startsWith("/communities")}
+        active={pathname.startsWith("/communities")}
         onClick={() => {
-          navigate("/communities")
+          router.push("/communities")
         }}
       />
       <FooterItem
         icon={<ProfileIcon />}
-        active={location.pathname.startsWith("/profile")}
+        active={pathname.startsWith("/profile")}
         label="Perfil"
         onClick={() => {
-          navigate("/profile")
+          router.push("/profile")
         }}
       />
     </nav>

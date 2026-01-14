@@ -1,4 +1,4 @@
-import type { Actor } from "@/types"
+import type { Actor } from "../../types"
 import { HeartIcon } from "../icons/heart"
 import { Avatar } from "../avatar" 
 import { IconButton } from "../button/iconButton"
@@ -45,7 +45,7 @@ export function CastModal({
                   <Avatar
                     imageUrl={actor.image}
                     title={actor.name}
-                    className="w-15 h-15 rounded-full"
+                    className="rounded-full w-16 h-14 mb-2"
                   />
 
                   <div>

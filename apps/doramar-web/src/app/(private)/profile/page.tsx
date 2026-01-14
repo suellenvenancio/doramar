@@ -1,3 +1,4 @@
+"use client"
 import { Avatar } from "@/components/avatar"
 import { HeartIcon } from "@/components/icons/heart"
 import { MovieIcon } from "@/components/icons/movie"
@@ -13,7 +14,7 @@ import { useTvShow } from "@/hooks/use-tv-shows"
 import { useUser } from "@/hooks/use-user"
 import { useState, useRef, type ChangeEvent } from "react"
 
-export function MyProfilePage() {
+export default function MyProfilePage() {
   const { user, uploadProfilePicture } = useUser()
   const { watchedTvShows, favoriteTvShow } = useTvShow()
   const { ratings, createRating } = useRating()
@@ -58,7 +59,7 @@ export function MyProfilePage() {
               }
             />
             <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-5 gap-4">
-              { favoriteActors?.length ? (
+              {favoriteActors?.length ? (
                 favoriteActors.map((actor) => (
                   <div
                     className="flex flex-col items-center w-20"
@@ -67,7 +68,8 @@ export function MyProfilePage() {
                     <Avatar
                       imageUrl={actor.image}
                       title={actor.name}
-                      className="h-18 w-18 rounded-full"
+                      className="rounded-full w-24 h-20 mb-2"
+                       
                     />
                     <p className="text-xs text-center mt-1 line-clamp-2">
                       {actor.name}

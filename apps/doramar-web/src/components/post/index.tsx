@@ -1,6 +1,13 @@
+"use client"
+
 import { useCallback, useEffect, useState, type ReactElement } from "react"
 import { Avatar } from "../avatar"
-import { ReactionTargetType, type Comment, type Reaction, type ReactionType } from "@/types"
+import {
+  ReactionTargetType,
+  type Comment,
+  type Reaction,
+  type ReactionType,
+} from "@/types"
 import z from "zod"
 import { CustomInput } from "../input"
 import { useForm } from "react-hook-form"
@@ -11,7 +18,7 @@ import { LikeIcon } from "../icons/like"
 import { HeartIcon } from "../icons/heart"
 import { LaughtIcon } from "../icons/laught"
 import { AngryIcon } from "../icons/angry"
-import { useNavigate } from "react-router-dom" 
+import { useRouter } from "next/navigation"
 import { TrashIcon } from "../icons/trash"
 import { ConfirmationModal } from "../modal/confirmationModal"
 import { getRelativeTime } from "@/utils/date"
@@ -25,20 +32,22 @@ interface PostProps {
   postedAt: string
   content: string
   fetchPostComments: (postId: string) => Promise<Comment[] | undefined>
-  fetchReactions: (postId: string) => Promise<Reaction[] | undefined> 
+  fetchReactions: (postId: string) => Promise<Reaction[] | undefined>
   onAddComment: (
     postId: string,
     communityId: string,
-    content: string
+    content: string,
   ) => Promise<Comment | undefined | null>
   communityId: string
-  onCreateReaction: (
-   {postId, targetType, type}:{
+  onCreateReaction: ({
+    postId,
+    targetType,
+    type,
+  }: {
     postId: string
     targetType: ReactionTargetType
     type: ReactionType
-    }
-  ) => Promise<Reaction | undefined | null>
+  }) => Promise<Reaction | undefined | null>
   handleDeletePost: (postId: string) => Promise<void>
   handleDeleteComment: (commentId: string, postId: string) => Promise<void>
 }
@@ -79,7 +88,7 @@ export function PostComponent({
 
   const { reset, control, handleSubmit, setError } = useForm<FormData>({})
 
-  const navigate = useNavigate()
+  const router = useRouter()
 
   const reactions = [
     { type: "LIKE", emoji: <LikeIcon />, label: "Curtir", color: "green-500" },
@@ -162,11 +171,13 @@ export function PostComponent({
         <div className="flex-1">
           <h3
             className="font-bold text-gray-800 hover:underline"
-            onClick={() => navigate(`/profile/${authorId}`)}
+            onClick={() => router.push(`/profile/${authorId}`)}
           >
             {authorName}
           </h3>
-          <span className="text-xs text-gray-400">{getRelativeTime(postedAt)}</span>
+          <span className="text-xs text-gray-400">
+            {getRelativeTime(postedAt)}
+          </span>
         </div>
         {userId === authorId && (
           <div>
@@ -238,7 +249,7 @@ export function PostComponent({
                   <div className="flex items-center gap-2">
                     <p
                       className="text-[10px] font-bold text-[#D63384] uppercase tracking-wider"
-                      onClick={() => navigate(`/profile/${authorId}`)}
+                      onClick={() => router.push(`/profile/${authorId}`)}
                     >
                       {c.author?.name}
                     </p>
@@ -255,11 +266,10 @@ export function PostComponent({
                           onClose={() => setShowDeleteCommentModal(false)}
                           onClick={async () => {
                             await handleDeleteComment(c.id, postId).then(() => {
-                                setAllComments((prev) =>
-                                  prev.filter((comment) => comment.id !== c.id),
-                                )
+                              setAllComments((prev) =>
+                                prev.filter((comment) => comment.id !== c.id),
+                              )
                             })
-                          
                           }}
                           id={c.id}
                           question={

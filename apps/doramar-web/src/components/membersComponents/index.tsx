@@ -1,5 +1,5 @@
-import { useNavigate } from "react-router-dom"
-import { Avatar } from "../avatar"
+ import { Avatar } from "../avatar"
+import { useRouter } from "next/navigation"
 
 interface MembersProps {
   name: string
@@ -8,19 +8,16 @@ interface MembersProps {
 }
 
 export function Members({ name, profilePicture, id }: MembersProps) {
-  const navigate = useNavigate()
+  const router = useRouter()
 
   return (
-    <div className="grid grid-cols-1 gap-1" onClick={() => navigate(`/profile/${id}`)}>
+    <div className="grid grid-cols-1 gap-1" onClick={() => router.push(`/profile/${id}`)}>
       <Avatar
         title={name}
         imageUrl={profilePicture}
-        className="rounded-full w-15 h-15"
+        className="rounded-xl w-12 h-12"
       />
-      <p
-        className="text-xs text-start w-full"
-
-      >
+      <p className="text-xs text-start w-full">
         {name}
       </p>
     </div>

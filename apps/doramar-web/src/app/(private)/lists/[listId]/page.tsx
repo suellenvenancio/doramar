@@ -1,3 +1,4 @@
+"use client"
 import { IconButton } from '@/components/button/iconButton';
 import { MenuIcon } from '@/components/icons/menu';
 import { TrashIcon } from '@/components/icons/trash';
@@ -6,7 +7,7 @@ import { useList } from '@/hooks/use-list';
 import type { TvShow } from '@/types';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'next/navigation';
 import {
   SortableContext,
   verticalListSortingStrategy,
@@ -26,11 +27,12 @@ import {
   type DragEndEvent,
 } from '@dnd-kit/core';
 
-export function ListsDetailsPage() {
+export default function ListsDetailsPage() {
   const [items, setItems] = useState<TvShow[]>([]);
 
   const { lists, removeTvShowFromTheList, updateListOrder } = useList();
-  const { listId } = useParams();
+  const params = useParams()
+  const listId = params.listId as string
 
   const listTvShows = lists.find((list) => list.id === listId)?.tvShows;
 

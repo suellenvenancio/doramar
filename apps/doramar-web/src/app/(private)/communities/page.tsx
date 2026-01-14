@@ -1,3 +1,4 @@
+"use client";
 import { Avatar } from "@/components/avatar"
 import { CircleIcon } from "@/components/icons/circle"
 import { Layout } from "@/components/layout"
@@ -5,12 +6,12 @@ import { CreateCommunityModal } from "@/components/modal/createCommunityModal"
 import { useCommunities } from "@/hooks/use-communities"
 import { mergeCn } from "@/utils/cn"
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useRouter } from "next/navigation"
 
-export function CommunitiesPage() {
+export default function CommunitiesPage() {
   const [showCreateCommunityModal, setShowCreateCommunityModal] =
     useState<boolean>(false)
-  const navigate = useNavigate()
+  const router = useRouter()
 
   const { communities, createCommunity, isLoading } = useCommunities()
 
@@ -49,7 +50,7 @@ export function CommunitiesPage() {
 
         {isLoading && (
           <div className="flex flex-col items-center justify-center w-full py-24">
-            <CircleIcon className="h-12 w-12 text-pink-600" /> 
+            <CircleIcon className="h-12 w-12 text-pink-600" />
           </div>
         )}
 
@@ -61,7 +62,7 @@ export function CommunitiesPage() {
                 name={community.name}
                 totalMembers={community.members.length}
                 onClickInTheCommunity={() =>
-                  navigate(`/communities/${community.id}`)
+                  router.push(`/communities/${community.id}`)
                 }
                 avatar={community.avatarUrl}
               />
@@ -108,11 +109,7 @@ export function CommunityCard({
       className="flex flex-col justify-center items-center mb-8 bg-[#FDFFFE] rounded-xl shadow-lg overflow-visible p-6 gap-6 cursor-pointer w-80"
       onClick={onClickInTheCommunity}
     >
-      <Avatar
-        imageUrl={avatar}
-        title={name}
-        className="rounded-xl w-28 h-28"
-      />
+      <Avatar imageUrl={avatar} title={name} className="rounded-xl w-28 h-28" />
 
       <h3 className="text-lg font-semibold text-gray-800">{name}</h3>
 

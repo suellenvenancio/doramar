@@ -17,7 +17,7 @@ export function CustomButton({
   return (
     <button
       className={mergeCn(
-        "bg-pink-700 text-white w-full rounded flex items-center justify-center disabled:bg-pink-300 p-4",
+        "bg-pink-600 text-white w-full rounded flex items-center justify-center disabled:bg-pink-300 p-4",
         className
       )}
       onClick={onClick}
