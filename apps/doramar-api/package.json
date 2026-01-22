@@ -9,7 +9,8 @@
     "test:e2e": "./scripts/run-e2e.sh",
     "test:watch": "jest --watchAll",
     "build": "tsc",
-    "start": "npx prisma migrate deploy && node dist/server.js"
+    "start": "npx prisma migrate deploy && node dist/server.js",
+    "postinstall": "prisma generate"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
